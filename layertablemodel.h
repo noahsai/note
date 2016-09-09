@@ -29,12 +29,13 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     void deleteItem(int index);
     void addItem();
+    void addItem(LayerItem& add);
     void refreshModel();
     QModelIndex selecttedIndex(int row);
 
     void setSelecttedRow(int row);
     int getSelecttedRow() const;
-
+    bool savelist();
 
 public slots:
     void changeLayerVisibility(const QModelIndex&);

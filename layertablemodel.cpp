@@ -3,14 +3,14 @@
 LayerTableModel::LayerTableModel(QObject *parent)
 : QAbstractTableModel(parent)
 {
+    selectedRow = 0;
 
     layerList.reserve(3);
-    selectedRow = 0;
-    for (int i = 0; i < 3; i++)
-    {
-        QString a;
-        addItem();
-    }
+//    for (int i = 0; i < 3; i++)
+//    {
+//        QString a;
+//        addItem();
+//    }
 }
 
 LayerTableModel::~LayerTableModel()
@@ -43,17 +43,17 @@ QVariant LayerTableModel::data(const QModelIndex &index, int role) const
             data.setValue(layerList.at(index.row())) ;
             return data;
         }
-        if (role == Qt::DisplayRole)
+        else if (role == Qt::DisplayRole)
         {
             return QVariant(layerList.at(index.row()).note);
         }
 
 
-        if (role == Qt::SizeHintRole)
+        else if (role == Qt::SizeHintRole)
         {
             return QSize(470, 60);
         }
-        if (role == Qt::TextAlignmentRole)
+        else if (role == Qt::TextAlignmentRole)
         {
             return int(Qt::AlignVCenter);
         }
@@ -106,6 +106,7 @@ bool LayerTableModel::setData(const QModelIndex &index, const
     {
         layerList[index.row()].isenable = val.toBool();
         emit(dataChanged(index, index));
+        savelist();
         return true;
     }
     if (role == Qt::EditRole && index.column() == 1)
@@ -113,6 +114,7 @@ bool LayerTableModel::setData(const QModelIndex &index, const
         LayerItem va = val.value<LayerItem>();
         layerList.replace(index.row(),va);
         emit(dataChanged(index, index));
+        savelist();
         return true;
     }
     return false;;
@@ -147,6 +149,17 @@ void LayerTableModel::addItem()
     qDebug()<<layerList.size();
 }
 
+
+void LayerTableModel::addItem(LayerItem& add)
+{
+    LayerItem item = add;
+    layerList.append(item);
+    //this->insertRow()
+    //emit(dataChanged(index, index));
+    qDebug()<<layerList.size();
+    savelist();
+}
+
 void LayerTableModel::refreshModel()
 {
     beginResetModel();
@@ -169,4 +182,23 @@ void LayerTableModel::setSelecttedRow(int row)
 int LayerTableModel::getSelecttedRow() const
 {
     return selectedRow;
+}
+
+bool LayerTableModel::savelist()
+{
+    QFile file;
+    QString path = QApplication::applicationDirPath()+"/notelist";
+    file.setFileName(path);
+    if(file.open(QIODevice::WriteOnly))
+    {
+        QDataStream out(&file);
+        for(int i=0;i<layerList.count();i++)
+        {
+            out<<layerList[i];
+        }
+
+        file.close();
+        return true;
+    }
+    else return false;
 }

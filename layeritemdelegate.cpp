@@ -1,5 +1,21 @@
 #include "layeritemdelegate.h"
 
+QString change(QString& in)
+{
+    QString out = in;
+    out = out.replace("1","一");
+    out = out.replace("2","二");
+    out = out.replace("3","三");
+    out = out.replace("4","四");
+    out = out.replace("5","五");
+    out = out.replace("6","六");
+    out = out.replace("7","七");
+    return out;
+}
+
+
+
+
 LayerItemDelegate::LayerItemDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
 {
@@ -26,14 +42,39 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
 
         QRect textRect(rect.x()+2, rect.y(), rect.width(), rect.height()/3*2);
 
-        QString layerName = index.model()->data(index, Qt::DisplayRole).toString();
+        LayerItem value = index.model()->data(index, Qt::EditRole).value<LayerItem>();
+
+        QString layerName = value.note;
         QTextOption textOption = Qt::AlignLeft | Qt::AlignVCenter;
         textOption.setWrapMode(QTextOption::NoWrap);
         QFont font;
         font.setPixelSize(20);
         painter->setFont(font);
         painter->drawText(textRect, layerName, textOption);
-
+//================================
+        QString deadline;
+        int type = value.type;
+        switch(type)
+        {
+        case 0:
+            deadline = value.date+"  "+value.time;
+            break;
+        case 1:
+            deadline = "星期" + change(value.pre);
+            break;
+        case 2:
+            deadline = value.date+"起，每"+value.pre+"天";
+            break;
+        case 3:
+            deadline = value.time+"起，每"+value.pre+"分钟";
+            break;
+        }
+        textRect.setRect(rect.x()+2, rect.y()+rect.height()-rect.height()/2, rect.width()-8, rect.height()/2-4);
+        textOption = Qt::AlignRight | Qt::AlignBottom;
+        textOption.setWrapMode(QTextOption::NoWrap);
+        font.setPixelSize(14);
+        painter->setFont(font);
+        painter->drawText(textRect, deadline, textOption);
     }
     else
     {
@@ -89,4 +130,5 @@ void LayerItemDelegate::setModelData(QWidget *e, QAbstractItemModel *model,
     QVariant data;
     data.setValue(editor->item) ;
     model->setData(index, data, Qt::EditRole);
+
 }

@@ -129,7 +129,7 @@ bool LayerTableView::readlist()
 
 void LayerTableView::gettarkslist()
 {
-
+    
 }
 
 void LayerTableView::timeout()

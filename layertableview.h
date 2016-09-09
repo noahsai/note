@@ -11,7 +11,7 @@
 #include "layertablemodel.h"
 #include "layeritemdelegate.h"
 #include<layeritem.h>
-
+#include<QTimer>
 class LayerTableView : public QTableView
 {
     Q_OBJECT
@@ -33,9 +33,15 @@ private:
     LayerItemDelegate *delegate;
     LayerTableModel *model;
     QSize layerSize;
+    QTimer timer;
+    bool readlist();
+    void gettarkslist();
+
 
 private slots:
     void itemClicked(const QModelIndex&);
+    void timeout();
+
 
 };
 
