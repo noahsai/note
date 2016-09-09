@@ -202,3 +202,8 @@ bool LayerTableModel::savelist()
     }
     else return false;
 }
+
+
+QList<LayerItem> LayerTableModel:: getlist(){
+    return layerList;
+}

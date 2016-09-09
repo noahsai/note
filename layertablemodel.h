@@ -36,6 +36,7 @@ public:
     void setSelecttedRow(int row);
     int getSelecttedRow() const;
     bool savelist();
+    QList<LayerItem> getlist();
 
 public slots:
     void changeLayerVisibility(const QModelIndex&);

@@ -12,6 +12,7 @@
 #include "layeritemdelegate.h"
 #include<layeritem.h>
 #include<QTimer>
+#include<QDate>
 class LayerTableView : public QTableView
 {
     Q_OBJECT
@@ -36,12 +37,12 @@ private:
     QTimer timer;
     bool readlist();
     void gettarkslist();
+    QList<todayitem> todaylist;
 
 
 private slots:
     void itemClicked(const QModelIndex&);
     void timeout();
-
 
 };
 

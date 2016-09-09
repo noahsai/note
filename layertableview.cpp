@@ -26,6 +26,9 @@ LayerTableView::LayerTableView(QWidget *parent)
     //When click on the checkbox it will emit signal twice.Click on the cell emit only once.
     connect(this, SIGNAL(clicked(const QModelIndex&)), this, SLOT(itemClicked(const QModelIndex&)));
     readlist();
+    connect(&timer,SIGNAL(timeout()),this,SLOT(timeout()));
+    timer.setSingleShot(false);
+    timer.start(1000);
 }
 
 LayerTableView::~LayerTableView()
@@ -120,6 +123,7 @@ bool LayerTableView::readlist()
         model->refreshModel();
         this->resizeRowsToContents();
         file.close();
+        gettarkslist();
         return true;
     }
     else return false;
@@ -129,10 +133,106 @@ bool LayerTableView::readlist()
 
 void LayerTableView::gettarkslist()
 {
+    int row = model->getlist().size();
+    qDebug()<<"row="<<row;
+    for(int i=0;i<row;i++)
+    {
+        LayerItem value = model->data(model->index(i,1) , Qt::EditRole).value<LayerItem>();
 
+        if(!value.isenable) continue;
+        qDebug()<<value.note;
+        int type = value.type;
+        switch(type)
+        {
+        case 0 :
+            {
+                QString date = value.date;
+                QDate setday ;
+                setday=QDate::fromString(date,"yyyy.M.d");
+             //   qDebug()<<date<<setday.toString("yyyy.M.d");
+                if(setday==QDate().currentDate())
+                {
+                    todayitem item;
+                    item.index = model->index(0,i);
+                    QTime settime;
+                    settime=QTime::fromString(value.time,"h:m");
+                    item.time = settime;
+                    todaylist.append(item);
+                    qDebug()<<"今天的事件，进入计时列表"<<value.time<<item.time;
+                }
+                break;
+            }
+        case 1 :
+        {
+            QString weeks = value.pre;
+            QStringList weeklist = weeks.split(".");
+            for(int i=0;i<weeklist.count();i++)
+            {
+                QString oneday = weeklist.at(i);
+                int week = oneday.toInt();
+                if(week==0) continue;
+                if(week == QDate().currentDate().dayOfWeek())
+                {
+                    qDebug()<<"今天的星期事件，进入计时列表"<<value.time;;
+                    todayitem item;
+                    item.index = model->index(0,i);
+                    QTime settime;
+                    settime=QTime::fromString(value.time,"h:m");
+                    item.time = settime;
+                    todaylist.append(item);
+                    break;
+                }
+            }
+
+            break;
+        }
+        case 2 :
+        {
+            QString date2 = value.date;
+            QDate setday ;
+            setday=QDate::fromString(date2,"yyyy.M.d");
+            QDate today;
+            today = today.currentDate();
+            int someday = value.pre.toInt();
+            int days = setday.daysTo(today);
+
+            if(days/someday == 0)
+            {
+                qDebug()<<"今天的几日事件，进入计时列表"<<value.time;;
+                todayitem item;
+                item.index = (model->index(0,i));
+                QTime settime;
+                settime=QTime::fromString(value.time,"h:m");
+                item.time = settime;
+                todaylist.append(item);
+            }
+            break;
+        }
+        case 3 :
+        {
+            todayitem item;
+            item.index = model->index(0,i);
+            QTime settime;
+            settime=QTime::fromString(value.time,"h:m");
+            item.time = settime;
+            todaylist.append(item);
+            break;
+        }
+        }
+    }
 }
 
 void LayerTableView::timeout()
 {
 
+    for(int i=0;i<todaylist.size();i++)
+    {
+        QTime now = QTime::currentTime();
+        if(todaylist.at(i).time.toString("h:m:s")==now.toString("h:m:s"))
+        {
+            qDebug()<<"bling!!!!!!";
+            system("notify-send \"hi!note!\"");
+            timer.stop();
+        }
+    }
 }

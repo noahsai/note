@@ -4,6 +4,8 @@
 #include <QDataStream>
 #include<QFile>
 #include<QApplication>
+#include<QModelIndex>
+#include<QTime>
 struct LayerItem
 {
 
@@ -33,5 +35,12 @@ Q_DECLARE_METATYPE(LayerItem)
      in>>item.isenable>>item.note>>item.onetime>>item.type>>item.date>>item.time>>item.pre>>item.tmpbool>>item.tmpint>>item.tmpqstring;
     return in;
  }
+
+
+ struct todayitem
+ {
+     QModelIndex index;
+     QTime time;
+ };
 
 #endif // LAYERITEM_H
