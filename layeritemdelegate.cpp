@@ -9,7 +9,7 @@ QString change(QString& in)
     out = out.replace("4","四");
     out = out.replace("5","五");
     out = out.replace("6","六");
-    out = out.replace("7","七");
+    out = out.replace("7","日");
     return out;
 }
 
@@ -60,10 +60,10 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
             deadline = value.date+"  "+value.time;
             break;
         case 1:
-            deadline = "星期" + change(value.pre);
+            deadline = "星期" + change(value.pre)+"  "+value.time;
             break;
         case 2:
-            deadline = value.date+"起，每"+value.pre+"天";
+            deadline = value.date+"起，每"+value.pre+"天  "+value.time;
             break;
         case 3:
             deadline = value.time+"起，每"+value.pre+"分钟";
@@ -95,7 +95,7 @@ QWidget *LayerItemDelegate::createEditor(QWidget *parent,
     const QStyleOptionViewItem &option,
     const QModelIndex &index) const
 {
-    qDebug() << "createEditor";
+   // qDebug() << "createEditor";
     if (index.column() == 1) // value column
     {
         edit* editor = new edit(parent);
@@ -113,7 +113,7 @@ void LayerItemDelegate::setEditorData(QWidget *e, const QModelIndex &index) cons
     edit* editor = static_cast<edit*>(e);
    // editor->item = value ;
     editor->setdata(value);
-    qDebug() << "setEditorData";
+  //  qDebug() << "setEditorData";
 }
 
 void LayerItemDelegate::updateEditorGeometry(QWidget *editor,
@@ -125,7 +125,7 @@ void LayerItemDelegate::updateEditorGeometry(QWidget *editor,
 void LayerItemDelegate::setModelData(QWidget *e, QAbstractItemModel *model,
     const QModelIndex &index) const
 {
-    qDebug() << "setModelData";
+  //  qDebug() << "setModelData";
     edit* editor = static_cast<edit*>(e);
     QVariant data;
     data.setValue(editor->item) ;

@@ -27,7 +27,7 @@ LayerTableView::LayerTableView(QWidget *parent)
     connect(this, SIGNAL(clicked(const QModelIndex&)), this, SLOT(itemClicked(const QModelIndex&)));
     readlist();
     connect(&timer,SIGNAL(timeout()),this,SLOT(timeout()));
-    timer.setSingleShot(false);
+  //  timer.setSingleShot(false);
     timer.start(1000);
 }
 
@@ -46,7 +46,10 @@ void LayerTableView::mouseMoveEvent(QMouseEvent * event)
 void LayerTableView::contextMenuEvent(QContextMenuEvent * event)
 {
     QMenu *pMenu = new QMenu(this);
-    QAction *pAddGroupAct = new QAction(tr("Delete"), pMenu);
+    QAction *pAddGroupAct = new QAction(tr("添加"), pMenu);
+    connect(pAddGroupAct ,SIGNAL(triggered(bool)),this,SLOT(addNewLayer()) );
+    pMenu->addAction(pAddGroupAct);
+    pAddGroupAct = new QAction(tr("删除"), pMenu);
     connect(pAddGroupAct ,SIGNAL(triggered(bool)),this,SLOT(deleteLayer()) );
     pMenu->addAction(pAddGroupAct);
     pMenu->popup(mapToGlobal(event->pos()));
@@ -58,6 +61,7 @@ void LayerTableView::addNewLayer()
     model->addItem();
     model->refreshModel();
     this->resizeRowsToContents();
+    //空白的就不保存了。
 }
 
 void LayerTableView::itemClicked(const QModelIndex& index)
@@ -77,22 +81,21 @@ void LayerTableView::itemClicked(const QModelIndex& index)
 
         }
         //When click in column 1.
-        else if (index.column() == 1)
-        {
-            model->setSelecttedRow(index.row());
-        }
+//        else if (index.column() == 1)
+//        {
+//            model->setSelecttedRow(index.row());
+//        }
     }
 }
 
 void LayerTableView::deleteLayer()
 {
-
     qDebug()<<"delete";
-    model->deleteItem(model->getSelecttedRow());
+    int currentrow = this->currentIndex().row();
+    if(currentrow < 0 && model->rowCount(model->index(0,1))<=0) return;
+    //model->deleteItem(model->getSelecttedRow());
+    model->deleteItem(currentrow);
     model->refreshModel();
-
-    QModelIndex tmp = model->selecttedIndex(0);
-    this->selectionModel()->select(tmp, QItemSelectionModel::Select);
     model->savelist();
 }
 
@@ -118,12 +121,12 @@ bool LayerTableView::readlist()
             in>>item;
             if(item.type>3) return false;
            qDebug()<<item.note<<item.type<<item.pre;
-           model->addItem(item);
+           model->addItem(item,false);//由于多此重复操作，所以不updatetaskslist，后面手动update
         }
         model->refreshModel();
         this->resizeRowsToContents();
         file.close();
-        gettarkslist();
+        model->update_taskslist();//完成后手动update
         return true;
     }
     else return false;
@@ -131,108 +134,21 @@ bool LayerTableView::readlist()
 
 
 
-void LayerTableView::gettarkslist()
-{
-    int row = model->getlist().size();
-    qDebug()<<"row="<<row;
-    for(int i=0;i<row;i++)
-    {
-        LayerItem value = model->data(model->index(i,1) , Qt::EditRole).value<LayerItem>();
-
-        if(!value.isenable) continue;
-        qDebug()<<value.note;
-        int type = value.type;
-        switch(type)
-        {
-        case 0 :
-            {
-                QString date = value.date;
-                QDate setday ;
-                setday=QDate::fromString(date,"yyyy.M.d");
-             //   qDebug()<<date<<setday.toString("yyyy.M.d");
-                if(setday==QDate().currentDate())
-                {
-                    todayitem item;
-                    item.index = model->index(0,i);
-                    QTime settime;
-                    settime=QTime::fromString(value.time,"h:m");
-                    item.time = settime;
-                    todaylist.append(item);
-                    qDebug()<<"今天的事件，进入计时列表"<<value.time<<item.time;
-                }
-                break;
-            }
-        case 1 :
-        {
-            QString weeks = value.pre;
-            QStringList weeklist = weeks.split(".");
-            for(int i=0;i<weeklist.count();i++)
-            {
-                QString oneday = weeklist.at(i);
-                int week = oneday.toInt();
-                if(week==0) continue;
-                if(week == QDate().currentDate().dayOfWeek())
-                {
-                    qDebug()<<"今天的星期事件，进入计时列表"<<value.time;;
-                    todayitem item;
-                    item.index = model->index(0,i);
-                    QTime settime;
-                    settime=QTime::fromString(value.time,"h:m");
-                    item.time = settime;
-                    todaylist.append(item);
-                    break;
-                }
-            }
-
-            break;
-        }
-        case 2 :
-        {
-            QString date2 = value.date;
-            QDate setday ;
-            setday=QDate::fromString(date2,"yyyy.M.d");
-            QDate today;
-            today = today.currentDate();
-            int someday = value.pre.toInt();
-            int days = setday.daysTo(today);
-
-            if(days/someday == 0)
-            {
-                qDebug()<<"今天的几日事件，进入计时列表"<<value.time;;
-                todayitem item;
-                item.index = (model->index(0,i));
-                QTime settime;
-                settime=QTime::fromString(value.time,"h:m");
-                item.time = settime;
-                todaylist.append(item);
-            }
-            break;
-        }
-        case 3 :
-        {
-            todayitem item;
-            item.index = model->index(0,i);
-            QTime settime;
-            settime=QTime::fromString(value.time,"h:m");
-            item.time = settime;
-            todaylist.append(item);
-            break;
-        }
-        }
-    }
-}
-
 void LayerTableView::timeout()
 {
-
+    timer.stop();
+    QList<todayitem> todaylist = model->get_tarkslist();
     for(int i=0;i<todaylist.size();i++)
     {
+      //  qDebug()<<todaylist[i].time;
         QTime now = QTime::currentTime();
         if(todaylist.at(i).time.toString("h:m:s")==now.toString("h:m:s"))
         {
+//            qDebug()<<i<<"bling!!!!!!"<<todaylist.at(i).time.toString("h:m:s");
             qDebug()<<"bling!!!!!!";
             system("notify-send \"hi!note!\"");
-            timer.stop();
+            if(todaylist[i].onetime) itemClicked(todaylist[i].index);
         }
     }
+    timer.start(1000);
 }

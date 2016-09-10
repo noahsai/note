@@ -34,7 +34,7 @@ void edit::on_type_currentIndexChanged(int index)
         ui->label_2->setText("时间");
         break;
     case 1:
-        sethide_show(false,false,true);
+        sethide_show(false,true,true);
         break;
     case 2:
         sethide_show(true,true,true);

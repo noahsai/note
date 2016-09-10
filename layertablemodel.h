@@ -29,23 +29,25 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     void deleteItem(int index);
     void addItem();
-    void addItem(LayerItem& add);
+    void addItem(LayerItem& add,bool withsave);
     void refreshModel();
     QModelIndex selecttedIndex(int row);
 
-    void setSelecttedRow(int row);
-    int getSelecttedRow() const;
+  //  void setSelecttedRow(int row); //没用到selectRow变量
+  //  int getSelecttedRow() const;
     bool savelist();
-    QList<LayerItem> getlist();
+    QList<todayitem> get_tarkslist();
+    void update_taskslist();
 
 public slots:
     void changeLayerVisibility(const QModelIndex&);
 
-private:
 
+private:
+    QList<todayitem> todaylist;
     QList<LayerItem> layerList;
 
-    int selectedRow;
+   // int selectedRow;
 
 };
 

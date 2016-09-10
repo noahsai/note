@@ -36,8 +36,6 @@ private:
     QSize layerSize;
     QTimer timer;
     bool readlist();
-    void gettarkslist();
-    QList<todayitem> todaylist;
 
 
 private slots:

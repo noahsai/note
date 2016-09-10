@@ -13,18 +13,17 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        note.cpp \
     layertablemodel.cpp \
     layeritemdelegate.cpp \
     layertableview.cpp \
     edit.cpp
 
-HEADERS  += note.h \
+HEADERS  += \
     layertablemodel.h \
     layeritemdelegate.h \
     layertableview.h \
     edit.h \
     layeritem.h
 
-FORMS    += note.ui \
+FORMS    += \
     edit.ui
