@@ -4,6 +4,8 @@
 #include <QWidget>
 #include<layeritem.h>
 #include<QDebug>
+#include<QMessageBox>
+
 namespace Ui {
 class edit;
 }
@@ -35,6 +37,12 @@ private slots:
     void on_onetime_clicked();
 
     void sethide_show(bool,bool,bool);
+
+    void on_date_editingFinished();
+
+    void on_time_editingFinished();
+
+    void on_pre_editingFinished();
 
 private:
     Ui::edit *ui;

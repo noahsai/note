@@ -27,3 +27,6 @@ HEADERS  += \
 
 FORMS    += \
     edit.ui
+
+RESOURCES += \
+    res.qrc

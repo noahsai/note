@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>off.png</file>
+        <file>on.png</file>
+        <file>wei.png</file>
+        <file>wei2.png</file>
+        <file>wei3.png</file>
+    </qresource>
+</RCC>

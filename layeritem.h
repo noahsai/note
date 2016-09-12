@@ -41,6 +41,7 @@ Q_DECLARE_METATYPE(LayerItem)
  {
      QModelIndex index;
      QTime time;
+     QString note;
      bool onetime;
  };
 

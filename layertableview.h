@@ -13,6 +13,10 @@
 #include<layeritem.h>
 #include<QTimer>
 #include<QDate>
+#include<QSystemTrayIcon>
+#include<QSettings>
+#include<QDesktopWidget>
+
 class LayerTableView : public QTableView
 {
     Q_OBJECT
@@ -26,9 +30,14 @@ public slots:
     void addNewLayer();
     void deleteLayer();
 
+
 protected:
-    void mouseMoveEvent(QMouseEvent * event);
     void contextMenuEvent(QContextMenuEvent * event);
+    void closeEvent(QCloseEvent *event);
+private slots:
+    void itemClicked(const QModelIndex&);
+    void timeout();
+    void activate(QSystemTrayIcon::ActivationReason);
 
 private:
     LayerItemDelegate *delegate;
@@ -36,12 +45,12 @@ private:
     QSize layerSize;
     QTimer timer;
     bool readlist();
-
-
-private slots:
-    void itemClicked(const QModelIndex&);
-    void timeout();
-
+    QSystemTrayIcon* trayIcon;
+     QMenu*  trayIconMenu;
+    QAction  *quitAction;
+    void creattrayicon();
+    void savepos();
+    void readpos();
 };
 
 #endif // LAYERLISTVIEW_H

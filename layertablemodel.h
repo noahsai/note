@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QItemSelectionModel>
 #include<layeritem.h>
+#include<QRegularExpression>
 class LayerTableModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -31,7 +32,7 @@ public:
     void addItem();
     void addItem(LayerItem& add,bool withsave);
     void refreshModel();
-    QModelIndex selecttedIndex(int row);
+    QModelIndex selecttedIndex(int row,int col);
 
   //  void setSelecttedRow(int row); //没用到selectRow变量
   //  int getSelecttedRow() const;
