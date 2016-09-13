@@ -38,6 +38,7 @@ private slots:
     void itemClicked(const QModelIndex&);
     void timeout();
     void activate(QSystemTrayIcon::ActivationReason);
+    void show_hide(bool sh);
 
 private:
     LayerItemDelegate *delegate;

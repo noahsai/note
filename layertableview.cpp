@@ -46,13 +46,23 @@ void LayerTableView::activate(QSystemTrayIcon::ActivationReason reason)
 {
     if(reason == QSystemTrayIcon:: Context) trayIcon->contextMenu()->show();
     else {
-        setWindowFlags(Qt::Window|Qt::WindowTitleHint|Qt::WindowSystemMenuHint|Qt::WindowMinMaxButtonsHint|Qt::WindowCloseButtonHint);
-        this->show();
-        this->activateWindow();
+//        this->show();
+//        this->activateWindow();
+        show_hide(!isActiveWindow());
     }
     savepos();
 }
 
+
+void LayerTableView::show_hide(bool sh)
+{
+    if(sh)
+    {
+        this->show();
+        this->activateWindow();
+    }
+    else this->hide();
+}
 
 void LayerTableView::creattrayicon()
 {
