@@ -37,9 +37,9 @@
    <property name="styleSheet">
     <string notr="true">QPushButton
 {
-border-top : 2px solid   rgb(62, 62, 62);
+border-top : 1px solid    rgb(94, 94, 94);
 border-left : 1px solid rgb(209, 209, 209);
-border-right : 1px solid   rgb(62, 62, 62);
+border-right : 1px solid    rgb(94, 94, 94);
 border-bottom : 1px solid rgb(209, 209, 209);
 background-color: rgb(255, 111, 133);
 border-bottom-left-radius: 15px 15px;
@@ -55,17 +55,17 @@ color: rgb(255, 255, 255);
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>121</width>
-     <height>151</height>
+     <width>120</width>
+     <height>150</height>
     </rect>
    </property>
    <property name="styleSheet">
     <string notr="true">QLabel
 {
 background-color: rgb(255, 255, 255);
-border-top:2px solid   rgb(62, 62, 62);
-border-left:2px solid  rgb(62, 62, 62);
-border-bottom:2px solid   rgb(62, 62, 62);
+border-top:1px solid      rgb(94, 94, 94);
+border-left:1px solid    rgb(94, 94, 94);
+border-bottom:1px solid     rgb(94, 94, 94);
 }</string>
    </property>
    <property name="text">
@@ -83,8 +83,8 @@ border-bottom:2px solid   rgb(62, 62, 62);
     <rect>
      <x>120</x>
      <y>0</y>
-     <width>251</width>
-     <height>151</height>
+     <width>250</width>
+     <height>150</height>
     </rect>
    </property>
    <property name="font">
@@ -96,13 +96,13 @@ border-bottom:2px solid   rgb(62, 62, 62);
     <string notr="true">QLabel
 {
 background-color: rgb(255, 255, 255);
-border-top:2px solid  rgb(62, 62, 62);
-border-right:2px solid   rgb(62, 62, 62);
-border-bottom:2px solid  rgb(62, 62, 62);
+border-top:1px solid   rgb(94, 94, 94);
+border-right:1px solid   rgb(94, 94, 94);
+border-bottom:1px solid   rgb(94, 94, 94);
 }</string>
    </property>
    <property name="text">
-    <string>喂！！是时候撸啊撸了！！！！</string>
+    <string>撸啊撸啊撸啊撸啊撸啊撸啊撸</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>

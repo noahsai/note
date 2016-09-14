@@ -54,8 +54,8 @@ void Notify::timeout()
         timer->start(time);
     }
     else {
-        reset();
-        hide();
+      //  reset();
+        //hide();
     }
 }
 
