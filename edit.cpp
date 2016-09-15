@@ -78,7 +78,7 @@ void edit::setdata(LayerItem &value)
     ui->pre ->setText(value.pre);
     ui->time ->setText( value.time);
     ui->type ->setCurrentIndex( value.type);
-    if(value.type==-1) sethide_show(false,false,false);
+    if(value.type==-1) on_type_currentIndexChanged(0);
     if(value.time.isEmpty()) {
         item.time=QTime::currentTime().toString("h:m:s");
         item.onetime = true;

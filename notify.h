@@ -7,6 +7,7 @@
 #include<QDesktopWidget>
 #include<QMouseEvent>
 #include <QSettings>
+
 namespace Ui {
 class Notify;
 }
@@ -42,6 +43,8 @@ private:
     int  time;
     QString icon , music;
     QMediaPlayer* player;
+    notifyset *set;
+    Notify *notify;
 };
 
 #endif // NOTIFY_H

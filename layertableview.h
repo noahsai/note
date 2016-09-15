@@ -16,6 +16,8 @@
 #include<QSystemTrayIcon>
 #include<QSettings>
 #include<QDesktopWidget>
+#include<notify.h>
+#include<notifyset.h>
 
 class LayerTableView : public QTableView
 {
@@ -39,6 +41,7 @@ private slots:
     void timeout();
     void activate(QSystemTrayIcon::ActivationReason);
     void show_hide(bool sh);
+    void notifyset(int,QString,QString);
 
 private:
     LayerItemDelegate *delegate;
@@ -52,6 +55,11 @@ private:
     void creattrayicon();
     void savepos();
     void readpos();
+
+    int notifytime;
+    QString notifymusic;
+    QString notifyicon;
+
 };
 
 #endif // LAYERLISTVIEW_H

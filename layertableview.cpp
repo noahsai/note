@@ -4,6 +4,9 @@ LayerTableView::LayerTableView(QWidget *parent)
 : QTableView(parent)
 {
     setWindowFlags(Qt::Window |Qt::WindowTitleHint|Qt::WindowSystemMenuHint|Qt::WindowMinMaxButtonsHint|Qt::WindowCloseButtonHint);
+    notifytime = 60000;
+    notifymusic = "";
+    notifyicon = ":/wei2.png";
     delegate = new LayerItemDelegate();
     model = new LayerTableModel();
     this->setContentsMargins(0, 0, 0, 0);
@@ -213,4 +216,12 @@ void LayerTableView::readpos()
     if(point.x()<0||point.x()>QApplication::desktop()->width()-20) point.setX(x);
     if(point.y()<0||point.y()>QApplication::desktop()->height()-20) point.setY(y);
     move(point);
+}
+
+
+void LayerTableView::notifyset(int t,QString m,QString i)
+{
+    notifytime = t;
+    notifymusic = m;
+    notifyicon = i;
 }

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,17 +16,23 @@ SOURCES += main.cpp\
     layertablemodel.cpp \
     layeritemdelegate.cpp \
     layertableview.cpp \
-    edit.cpp
+    edit.cpp \
+    notify.cpp \
+    notifyset.cpp
 
 HEADERS  += \
     layertablemodel.h \
     layeritemdelegate.h \
     layertableview.h \
     edit.h \
-    layeritem.h
+    layeritem.h \
+    notify.h \
+    notifyset.h
 
 FORMS    += \
-    edit.ui
+    edit.ui \
+    notify.ui \
+    notifyset.ui
 
 RESOURCES += \
     res.qrc
