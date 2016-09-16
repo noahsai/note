@@ -79,10 +79,7 @@ void edit::setdata(LayerItem &value)
     ui->time ->setText( value.time);
     ui->type ->setCurrentIndex( value.type);
     if(value.type==-1) ui->type->setCurrentIndex(0);
-    if(value.time.isEmpty()) {
-        item.time=QTime::currentTime().toString("h:m:s");
-        item.onetime = true;
-    }
+
     if(value.date.isEmpty())
     {
         QString date = QDate::currentDate().toString("yyyy.M.d");
@@ -126,7 +123,11 @@ void edit::on_date_editingFinished()
 void edit::on_time_editingFinished()
 {
     QString text = ui->time->text();
-    if(text.isEmpty()) return;
+    if(text.isEmpty()) {
+        item.time=QTime::currentTime().toString("h:m:s");
+        item.onetime = true;
+        return;
+    }
     QRegularExpression reg;
     reg.setPattern("[.-/]");
     text = text.replace(reg,":");

@@ -19,6 +19,9 @@
 border: 1px solid;
 border-radius:9px;
 border-color:rgb(190, 190, 190)
+}
+#notifyset{
+background-color:rgb(255, 255, 255);
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -32,7 +35,12 @@ border-color:rgb(190, 190, 190)
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="time"/>
+      <widget class="QLineEdit" name="time">
+       <property name="toolTip">
+        <string>正数：使用软件自带的提示框。
+负数：使用系统的提示功能。</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -124,6 +132,16 @@ border-color:rgb(190, 190, 190)
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>重置</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QPushButton" name="no">
        <property name="text">

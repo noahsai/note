@@ -7,7 +7,7 @@
 #include<QDesktopWidget>
 #include<QMouseEvent>
 #include <QSettings>
-
+#include<QTime>
 namespace Ui {
 class Notify;
 }
@@ -39,7 +39,7 @@ private:
     QStringList *list;
     QTimer* timer;
 
-    bool mousepressed;
+    bool mousemoving;
     QPoint oldpos;
 
     int  time;

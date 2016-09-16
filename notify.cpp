@@ -11,7 +11,7 @@ Notify::Notify(QWidget *parent) :
     connect(ui->pushButton,SIGNAL(clicked(bool)), this,SLOT(stop()));
     oldpos.setX(0);
     oldpos.setY(0);
-    mousepressed = false;
+    mousemoving = false;
     list = new QStringList;
     timer = new QTimer;
     connect(timer,SIGNAL(timeout()),this,SLOT(timeout()));
@@ -29,14 +29,48 @@ void Notify::init(int t, QString &m, QString &i)
 {
     time = t;
     icon =i;
+    if(i.indexOf(":/wei.png")==0)
+    {
+        ui->icon->setStyleSheet(
+                        "QLabel\
+                        {\
+                        border-top:1px solid     rgb(131, 131, 131);\
+                        border-left:1px solid      rgb(131, 131, 131);\
+                        border-bottom:1px solid     rgb(131, 131, 131);\
+                        }");
+        ui->note->setStyleSheet(
+                        "QLabel\
+                        {\
+                        background-color:white;\
+                        border-top:1px solid     rgb(131, 131, 131);;\
+                        border-right:1px solid      rgb(131, 131, 131);;\
+                        border-bottom:1px solid     rgb(131, 131, 131);;\
+                        }");
+    }
+    else
+    {
+        ui->note->setStyleSheet(
+                        "QLabel\
+                        {\
+                        background-color:white;\
+                        border-top:1px solid      rgb(131, 131, 131);;\
+                        border-left:1px solid      rgb(131, 131, 131);;\
+                        border-right:1px solid      rgb(131, 131, 131);;\
+                        border-bottom:1px solid     rgb(131, 131, 131);;\
+                        }");
+        ui->icon->setStyleSheet("");
+    }
     ui->icon->setPixmap(QPixmap(i));
     music = m;
+    if(music.indexOf(":/wei4.mp3")==0) music = QApplication::applicationDirPath()+"/wei4.mp3";
+    qDebug()<<"notifymusic:"<<music;
     player->setMedia(QUrl::fromLocalFile(music));
     player->setVolume(100);
 }
 
 void  Notify::message(QString& mes)
 {
+    qDebug()<<"get a message";
      list->append(mes);
      if( list -> count() ==1 )
      {
@@ -67,11 +101,15 @@ void Notify::stop()
 
 void Notify::repeat(QMediaPlayer::MediaStatus s)
 {
-    if (s == QMediaPlayer::EndOfMedia) player->play();
+    if (s == QMediaPlayer::EndOfMedia) {
+
+        player->play();
+    }
 }
 
 void Notify::reset()
 {
+    list->clear();
     player->stop();
     timer->stop();
     list->clear();
@@ -80,24 +118,24 @@ void Notify::reset()
 //=====================================================================
 void Notify::mousePressEvent(QMouseEvent* event)
 {
-    if(event->button()==Qt::LeftButton && !mousepressed)
+    if(event->button()==Qt::LeftButton && !mousemoving)
     {
-        mousepressed = true;
         oldpos=event->globalPos()-this->pos();
         setCursor(Qt::ClosedHandCursor);
     }
 }
 
 void Notify::mouseMoveEvent(QMouseEvent * event){
-    if(mousepressed)
+    if(event->buttons()==Qt::LeftButton)
     {
+        mousemoving = true;
         move(event->globalPos()-oldpos);//貌似linux要这样
         event->accept();
     }
 }
 
 void Notify::mouseReleaseEvent(QMouseEvent * event){
-    if(event->button()==Qt::LeftButton && mousepressed)
+    if(event->button()==Qt::LeftButton && mousemoving)
     {
         int x=this->x();
         int y=this->y();
@@ -115,12 +153,17 @@ void Notify::mouseReleaseEvent(QMouseEvent * event){
         }
 //        qDebug()<<x<<endl<<y;
         move(x,y);
-        mousepressed=false;
+        mousemoving=false;
         setCursor(Qt::ArrowCursor);
         event->accept();
+        saveset();
     }
-    saveset();
+    else if(event->button()==Qt::LeftButton && (!mousemoving)) {
+        timer->stop();
+        timeout();
+    }
     update();
+
 }
 
 

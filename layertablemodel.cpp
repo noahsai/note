@@ -335,14 +335,10 @@ void LayerTableModel::update_taskslist()
             item.index = index(i,0);
             int need;
             if(value.pre.toInt()==0) need = 0;
-            else if(value.time.isEmpty())
-            {
-                need = value.pre.toInt()*60;
-            }
             else
             {
                 QTime starttime;
-                starttime = QTime::fromString(value.time,"h:m");
+                starttime = QTime::fromString(value.time,"h:m:s");
                 int pre = value.pre.toInt()*60;
                 int cross = starttime.secsTo(QTime::currentTime());
                 need =pre - cross % pre;

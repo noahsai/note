@@ -27,6 +27,8 @@ private slots:
 
     void on_no_clicked();
 
+    void on_pushButton_clicked();
+
 signals:
     void ok(int ,QString ,QString );
 

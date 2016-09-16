@@ -3,10 +3,10 @@
 LayerTableView::LayerTableView(QWidget *parent)
 : QTableView(parent)
 {
-    setWindowFlags(Qt::Window |Qt::WindowTitleHint|Qt::WindowSystemMenuHint|Qt::WindowMinMaxButtonsHint|Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Window |Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
     notifytime = -5000;
-    notifymusic = "";
-    notifyicon = ":/wei2.png";
+    notifymusic = ":/WA06.wav";
+    notifyicon = ":/wei.png";
     sys_notify = true;
     notify = new Notify;
 
@@ -86,7 +86,7 @@ void LayerTableView::creattrayicon()
 void LayerTableView::newnotify()
 {
     set = new notifyset;
-   set->setinit(notifytime,notifymusic,notifyicon);
+    set->setinit(notifytime,notifymusic,notifyicon);
     connect(set,SIGNAL(ok(int,QString,QString)),this,SLOT(setnotify(int,QString,QString)));
     set->show();
 }
@@ -203,16 +203,15 @@ void LayerTableView::timeout()//不能没事件时停止timer，停止了进入�
             if(sys_notify)
             {
                 QString iconpath;
-                if(iconpath.indexOf(":/wei2")!=-1)  iconpath= QApplication::applicationDirPath()+"/wei2.png";
+                if(iconpath.indexOf(":/wei")!=-1)  iconpath= QApplication::applicationDirPath()+"/wei.png";
                 else iconpath = notifyicon;
                 QString cmd ="notify-send -t "+QString().setNum(notifytime*-1)+" -i '"+iconpath + "' ' ' \"╭(╯^╰)╮ 喂！\n"+ todaylist[i].note+"\"";
                 //notify-send -t 时间 -i ‘图标地址’ ‘空标题’ "内容\n内容"
                 system(cmd.toStdString().c_str());
             }
             else {
-                notify->init(notifytime,notifymusic,notifyicon);
                 notify->message(todaylist[i].note);
-                notify->show();
+                if(notify->isHidden()) notify->show();
             }
             this->clearSelection();
             if(todaylist[i].onetime)
@@ -232,6 +231,9 @@ void LayerTableView::savepos()
     QSettings settings("ShengSoft", "Note");
     settings.setValue("size", size());
     settings.setValue("pos", pos());
+    settings.setValue("notifytime",notifytime);
+    settings.setValue("notifymusic",notifymusic);
+    settings.setValue("notifyicon",notifyicon);
 }
 void LayerTableView::readpos()
 {
@@ -243,6 +245,12 @@ void LayerTableView::readpos()
     point=settings.value("pos", QPoint(x, y)).toPoint();
     if(point.x()<0||point.x()>QApplication::desktop()->width()-20) point.setX(x);
     if(point.y()<0||point.y()>QApplication::desktop()->height()-20) point.setY(y);
+    notifytime =  settings.value("notifytime",int(-5000)).toInt();
+    if(notifytime>0) sys_notify= false;
+    else sys_notify=true;
+    notifymusic = settings.value("notifymusic",QString(":/wei4.mp3")).toString();
+    notifyicon = settings.value("notifyicon",QString(":/wei2.png")).toString();
+    notify->init(notifytime,notifymusic,notifyicon);    //初始化NOTIFY
     move(point);
 }
 
@@ -254,4 +262,8 @@ void LayerTableView::setnotify(int t,QString m,QString i)
     notifytime = t;
     if(!m.isEmpty()) notifymusic = m;
     if(!i.isEmpty()) notifyicon = i;
+    notify->init(notifytime,notifymusic,notifyicon);
+    qDebug()<<"setnotify ed";
+    set->close();
+
 }

@@ -60,22 +60,16 @@ color: rgb(255, 255, 255);
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">QLabel
-{
-background-color: rgb(255, 255, 255);
-border-top:1px solid      rgb(94, 94, 94);
-border-left:1px solid    rgb(94, 94, 94);
-border-bottom:1px solid     rgb(94, 94, 94);
-}</string>
+    <string notr="true"/>
    </property>
    <property name="text">
     <string/>
    </property>
-   <property name="pixmap">
-    <pixmap>../../图片/p1282766218.jpg</pixmap>
-   </property>
    <property name="scaledContents">
     <bool>false</bool>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
   <widget class="QLabel" name="note">
@@ -96,9 +90,10 @@ border-bottom:1px solid     rgb(94, 94, 94);
     <string notr="true">QLabel
 {
 background-color: rgb(255, 255, 255);
-border-top:1px solid   rgb(94, 94, 94);
-border-right:1px solid   rgb(94, 94, 94);
-border-bottom:1px solid   rgb(94, 94, 94);
+border-top:1px solid  rgb(131, 131, 131);
+border-right:1px solid    rgb(104, 104, 104);
+border-left:1px solid     rgb(104, 104, 104);
+border-bottom:1px solid   rgb(104, 104, 104);
 }</string>
    </property>
    <property name="text">

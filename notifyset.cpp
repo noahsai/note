@@ -26,7 +26,6 @@ void notifyset::on_yes_clicked()
     t*=1000;
     if(t==0) t=-5000;
     emit ok(t,music,icon);
-    close();
 }
 
 void notifyset::on_getmusic_clicked()
@@ -56,4 +55,11 @@ void notifyset::setinit(int t,QString m,QString i)
 void notifyset::on_no_clicked()
 {
     close();
+}
+
+void notifyset::on_pushButton_clicked()
+{
+    ui->time->setText(QString().setNum(-5));
+    ui->music->setText(":/wei4.mp3");
+    ui->icon->setText(":/wei.png");
 }
