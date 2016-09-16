@@ -59,7 +59,7 @@ void notifyset::on_no_clicked()
 
 void notifyset::on_pushButton_clicked()
 {
-    ui->time->setText(QString().setNum(-5));
+    ui->time->setText(QString().setNum(5));
     ui->music->setText(":/wei4.mp3");
     ui->icon->setText(":/wei.png");
 }

@@ -4,10 +4,10 @@ LayerTableView::LayerTableView(QWidget *parent)
 : QTableView(parent)
 {
     setWindowFlags(Qt::Window |Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
-    notifytime = -5000;
+    notifytime = 5000;
     notifymusic = ":/WA06.wav";
     notifyicon = ":/wei.png";
-    sys_notify = true;
+    sys_notify = false;
     notify = new Notify;
 
     delegate = new LayerItemDelegate();
