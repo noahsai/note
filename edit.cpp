@@ -85,6 +85,10 @@ void edit::setdata(LayerItem &value)
         QString date = QDate::currentDate().toString("yyyy.M.d");
         item.date = date;
     }
+    if(value.time.isEmpty()) {
+        item.time=QTime::currentTime().toString("h:m:s");
+        item.onetime = true;
+    }
 
 }
 
