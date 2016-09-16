@@ -41,7 +41,8 @@ private slots:
     void timeout();
     void activate(QSystemTrayIcon::ActivationReason);
     void show_hide(bool sh);
-    void notifyset(int,QString,QString);
+    void setnotify(int,QString,QString);
+    void newnotify();
 
 private:
     LayerItemDelegate *delegate;
@@ -59,6 +60,10 @@ private:
     int notifytime;
     QString notifymusic;
     QString notifyicon;
+    bool sys_notify;
+
+    notifyset *set;
+    Notify *notify;
 
 };
 

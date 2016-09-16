@@ -6,6 +6,8 @@ notifyset::notifyset(QWidget *parent) :
     ui(new Ui::notifyset)
 {
     ui->setupUi(this);
+    setModal(true);
+    setAttribute(Qt::WA_DeleteOnClose);
 }
 
 notifyset::~notifyset()
@@ -15,23 +17,21 @@ notifyset::~notifyset()
 
 void notifyset::on_yes_clicked()
 {
-    int t=60000;
+    int t=0;
     QString time = ui->time->text();
     QString music = ui->music->text();
     QString icon = ui->icon->text();
-    if(!time.isEmpty() && time.toInt()==0)
-    {
-        QMessageBox::warning(this,"时间输入有误","输入为0或不是数字！\n请正确输入秒数，或者不填写。",QMessageBox::Ok	);
-        return;
-    }
+
     t = time.toInt();
     t*=1000;
+    if(t==0) t=-5000;
     emit ok(t,music,icon);
+    close();
 }
 
 void notifyset::on_getmusic_clicked()
 {
-    QString home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    QString home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first();
     QString file =  QFileDialog::getOpenFileName(this,"选择音乐",home,tr("所有 (*.*)"));
     if(file.isNull()) return;
     else ui->music->setText(file);
@@ -39,9 +39,21 @@ void notifyset::on_getmusic_clicked()
 
 void notifyset::on_geticon_clicked()
 {
-    QString home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    QString home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first();
     QString file =  QFileDialog::getOpenFileName(this,"选择图片",home,tr("所有 (*.*)"));
     if(file.isNull()) return;
     else ui->icon->setText(file);
 }
 
+void notifyset::setinit(int t,QString m,QString i)
+{
+    t = t/1000;
+    ui->time->setText(QString().setNum(t));
+    ui->music->setText(m);
+    ui->icon->setText(i);
+}
+
+void notifyset::on_no_clicked()
+{
+    close();
+}

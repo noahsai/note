@@ -16,6 +16,7 @@ class notifyset : public QDialog
 public:
     explicit notifyset(QWidget *parent = 0);
     ~notifyset();
+    void setinit(int ,QString ,QString );
 
 private slots:
     void on_yes_clicked();
@@ -23,6 +24,8 @@ private slots:
     void on_getmusic_clicked();
 
     void on_geticon_clicked();
+
+    void on_no_clicked();
 
 signals:
     void ok(int ,QString ,QString );

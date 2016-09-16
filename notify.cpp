@@ -8,7 +8,7 @@ Notify::Notify(QWidget *parent) :
     readset();
     setAttribute(Qt::WA_TranslucentBackground );//背景透明
     setWindowFlags(Qt::ToolTip);
-    connect(ui->pushButton,SIGNAL(clicked(bool)), qApp ,SLOT(quit()));
+    connect(ui->pushButton,SIGNAL(clicked(bool)), this,SLOT(stop()));
     oldpos.setX(0);
     oldpos.setY(0);
     mousepressed = false;
@@ -25,7 +25,7 @@ Notify::~Notify()
     delete ui;
 }
 
-void Notify::init(int t, QString &i, QString &m)
+void Notify::init(int t, QString &m, QString &i)
 {
     time = t;
     icon =i;
@@ -54,9 +54,14 @@ void Notify::timeout()
         timer->start(time);
     }
     else {
-      //  reset();
-        //hide();
+        stop();
     }
+}
+
+void Notify::stop()
+{
+    reset();
+    hide();
 }
 
 

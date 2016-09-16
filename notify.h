@@ -26,6 +26,8 @@ public:
 private slots:
     void timeout();
     void repeat(QMediaPlayer::MediaStatus);
+    void stop();
+
 private:
     void mousePressEvent(QMouseEvent * event);
     void mouseMoveEvent(QMouseEvent * event);
@@ -43,8 +45,7 @@ private:
     int  time;
     QString icon , music;
     QMediaPlayer* player;
-    notifyset *set;
-    Notify *notify;
+
 };
 
 #endif // NOTIFY_H

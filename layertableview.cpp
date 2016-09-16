@@ -4,9 +4,12 @@ LayerTableView::LayerTableView(QWidget *parent)
 : QTableView(parent)
 {
     setWindowFlags(Qt::Window |Qt::WindowTitleHint|Qt::WindowSystemMenuHint|Qt::WindowMinMaxButtonsHint|Qt::WindowCloseButtonHint);
-    notifytime = 60000;
+    notifytime = -5000;
     notifymusic = "";
     notifyicon = ":/wei2.png";
+    sys_notify = true;
+    notify = new Notify;
+
     delegate = new LayerItemDelegate();
     model = new LayerTableModel();
     this->setContentsMargins(0, 0, 0, 0);
@@ -69,14 +72,24 @@ void LayerTableView::show_hide(bool sh)
 
 void LayerTableView::creattrayicon()
 {
+    QAction *set = new QAction(tr("设置"), this);
+    connect(set, SIGNAL(triggered()), this, SLOT(newnotify()));
     quitAction = new QAction(tr("退出"), this);
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));//若触发了退出就退出程序
      trayIconMenu = new QMenu(this);//菜单
-    trayIconMenu->addAction(quitAction);//把退出加到入菜单项
+     trayIconMenu->addAction(set);//把设置加到入菜单项
+     trayIconMenu->addAction(quitAction);//把退出加到入菜单项
     trayIcon->setContextMenu(trayIconMenu);//设置托盘上下文菜单为trayIconMenu
 
 }
 
+void LayerTableView::newnotify()
+{
+    set = new notifyset;
+   set->setinit(notifytime,notifymusic,notifyicon);
+    connect(set,SIGNAL(ok(int,QString,QString)),this,SLOT(setnotify(int,QString,QString)));
+    set->show();
+}
 
 void LayerTableView::closeEvent(QCloseEvent *event)
 {
@@ -102,7 +115,10 @@ void LayerTableView::contextMenuEvent(QContextMenuEvent * event)
 void LayerTableView::addNewLayer()    //空白的就不保存了。
 {
     model->addItem();
+    qDebug()<<"model.additem ed";
     model->refreshModel();
+    qDebug()<<"refreshmodel ed";
+
     this->resizeRowsToContents();
 }
 
@@ -177,16 +193,27 @@ void LayerTableView::timeout()//不能没事件时停止timer，停止了进入�
 {
     timer.stop();
     QList<todayitem> todaylist = model->get_tarkslist();
-    for(int i=0;i<todaylist.size();i++)
+    int len = todaylist.size();
+    for(int i=0;i<len;i++)
     {
         QTime now = QTime::currentTime();
         if(todaylist.at(i).time.toString("h:m:s")==now.toString("h:m:s"))
         {
             qDebug()<<"bling!!!!!!";
-            QString iconpath = QApplication::applicationDirPath()+"/wei2.png";
-            QString cmd ="notify-send -t 10000 -i '"+iconpath + "' ' ' \"╭(╯^╰)╮ 喂！\n"+ todaylist[i].note+"\"";
-            //notify-send -t 时间 -i ‘图标地址’ ‘空标题’ "内容\n内容"
-            system(cmd.toStdString().c_str());
+            if(sys_notify)
+            {
+                QString iconpath;
+                if(iconpath.indexOf(":/wei2")!=-1)  iconpath= QApplication::applicationDirPath()+"/wei2.png";
+                else iconpath = notifyicon;
+                QString cmd ="notify-send -t "+QString().setNum(notifytime*-1)+" -i '"+iconpath + "' ' ' \"╭(╯^╰)╮ 喂！\n"+ todaylist[i].note+"\"";
+                //notify-send -t 时间 -i ‘图标地址’ ‘空标题’ "内容\n内容"
+                system(cmd.toStdString().c_str());
+            }
+            else {
+                notify->init(notifytime,notifymusic,notifyicon);
+                notify->message(todaylist[i].note);
+                notify->show();
+            }
             this->clearSelection();
             if(todaylist[i].onetime)
             {
@@ -194,6 +221,7 @@ void LayerTableView::timeout()//不能没事件时停止timer，停止了进入�
                 itemClicked(todaylist[i].index);
             }
             else model->update_taskslist();
+
         }
     }
     timer.start(1000);
@@ -219,9 +247,11 @@ void LayerTableView::readpos()
 }
 
 
-void LayerTableView::notifyset(int t,QString m,QString i)
+void LayerTableView::setnotify(int t,QString m,QString i)
 {
+    if(t<=0) sys_notify = true;
+    else sys_notify = false;
     notifytime = t;
-    notifymusic = m;
-    notifyicon = i;
+    if(!m.isEmpty()) notifymusic = m;
+    if(!i.isEmpty()) notifyicon = i;
 }
