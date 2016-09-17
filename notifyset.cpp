@@ -24,7 +24,7 @@ void notifyset::on_yes_clicked()
 
     t = time.toInt();
     t*=1000;
-    if(t==0) t=-5000;
+    if(t==0) t=5000;
     emit ok(t,music,icon);
 }
 

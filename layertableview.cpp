@@ -245,7 +245,7 @@ void LayerTableView::readpos()
     point=settings.value("pos", QPoint(x, y)).toPoint();
     if(point.x()<0||point.x()>QApplication::desktop()->width()-20) point.setX(x);
     if(point.y()<0||point.y()>QApplication::desktop()->height()-20) point.setY(y);
-    notifytime =  settings.value("notifytime",int(-5000)).toInt();
+    notifytime =  settings.value("notifytime",int(5000)).toInt();
     if(notifytime>0) sys_notify= false;
     else sys_notify=true;
     notifymusic = settings.value("notifymusic",QString(":/wei4.mp3")).toString();

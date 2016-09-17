@@ -111,7 +111,10 @@ void edit::on_date_editingFinished()
 {
     QString text = ui->date->text();
     qDebug()<<"date input"<<text;
-    if(text.isEmpty()) return;
+    if(text.isEmpty()){
+        item.date=QDate::currentDate().toString("yyyy.M.d");
+        return;
+    }
     QRegularExpression reg;
     reg.setPattern("[:-/,]");
     text = text.replace(reg,".");
