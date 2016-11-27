@@ -19,6 +19,9 @@
 #include<notify.h>
 #include<notifyset.h>
 
+//extern QString cfgpath;//全局变量,已在model.h里声明
+
+
 class LayerTableView : public QTableView
 {
     Q_OBJECT

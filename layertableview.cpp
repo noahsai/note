@@ -51,7 +51,7 @@ LayerTableView::~LayerTableView()
 void LayerTableView::activate(QSystemTrayIcon::ActivationReason reason)
 {
     if(reason == QSystemTrayIcon:: Context) trayIcon->contextMenu()->show();
-    else {
+    else if(reason == QSystemTrayIcon::Trigger){
 //        this->show();
 //        this->activateWindow();
         show_hide(!isActiveWindow());
@@ -62,6 +62,7 @@ void LayerTableView::activate(QSystemTrayIcon::ActivationReason reason)
 
 void LayerTableView::show_hide(bool sh)
 {
+    qDebug()<<"show_hide:"<<sh;
     if(sh)
     {
         this->show();
@@ -164,7 +165,7 @@ bool LayerTableView::readlist()
 {
 
     QFile file;
-    QString path = QApplication::applicationDirPath()+"/notelist";
+    QString path = cfgpath+"/notelist";
     qDebug()<<path;
     file.setFileName(path);
     QDataStream in(&file);
@@ -234,6 +235,9 @@ void LayerTableView::savepos()
     settings.setValue("notifytime",notifytime);
     settings.setValue("notifymusic",notifymusic);
     settings.setValue("notifyicon",notifyicon);
+    bool visi = this->isVisible();
+    settings.setValue("isshow",visi);
+    qDebug()<<visi;
 }
 void LayerTableView::readpos()
 {
@@ -252,6 +256,9 @@ void LayerTableView::readpos()
     notifyicon = settings.value("notifyicon",QString(":/wei2.png")).toString();
     notify->init(notifytime,notifymusic,notifyicon);    //初始化NOTIFY
     move(point);
+    bool visi = settings.value("isshow",true).toBool();
+    show_hide(visi);
+
 }
 
 

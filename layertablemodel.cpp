@@ -1,5 +1,6 @@
 #include "layertablemodel.h"
 
+
 LayerTableModel::LayerTableModel(QObject *parent)
 : QAbstractTableModel(parent)
 {
@@ -194,7 +195,8 @@ QModelIndex LayerTableModel::selecttedIndex(int row,int col)
 bool LayerTableModel::savelist()
 {
     QFile file;
-    QString path = QApplication::applicationDirPath()+"/notelist";
+    QString path = cfgpath+"/notelist";
+    qDebug()<<path;
     file.setFileName(path);
     if(file.open(QIODevice::WriteOnly))
     {

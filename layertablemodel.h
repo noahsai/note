@@ -1,6 +1,5 @@
 #ifndef LAYERLISTMODEL_H
 #define LAYERLISTMODEL_H
-
 #include <QAbstractTableModel>
 #include <QStringList>
 #include <QList>
@@ -11,6 +10,10 @@
 #include <QItemSelectionModel>
 #include<layeritem.h>
 #include<QRegularExpression>
+
+extern QString cfgpath;//全局变量
+
+
 class LayerTableModel : public QAbstractTableModel
 {
     Q_OBJECT
