@@ -3,7 +3,7 @@
 LayerTableView::LayerTableView(QWidget *parent)
 : QTableView(parent)
 {
-    setWindowFlags(Qt::Window |Qt::WindowTitleHint|Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Window |Qt::WindowCloseButtonHint);
     notifytime = 5000;
     notifymusic = ":/WA06.wav";
     notifyicon = ":/wei.png";
@@ -54,7 +54,7 @@ void LayerTableView::activate(QSystemTrayIcon::ActivationReason reason)
     else if(reason == QSystemTrayIcon::Trigger){
 //        this->show();
 //        this->activateWindow();
-        show_hide(!isActiveWindow());
+        show_hide(!isVisible());
     }
     savepos();
 }
@@ -66,7 +66,7 @@ void LayerTableView::show_hide(bool sh)
     if(sh)
     {
         this->show();
-        this->activateWindow();
+       // this->activateWindow();
     }
     else this->hide();
 }
