@@ -13,9 +13,9 @@ Notify::Notify(QWidget *parent) :
     oldpos.setY(0);
     mousemoving = false;
     list = new QStringList;
-    timer = new QTimer;
+    timer = new QTimer(this);
     connect(timer,SIGNAL(timeout()),this,SLOT(timeout()));
-    player = new QMediaPlayer;
+    player = new QMediaPlayer(this);
     connect(player , SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)),this,SLOT(repeat(QMediaPlayer::MediaStatus)));
     timer->setSingleShot(true);
 }

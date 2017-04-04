@@ -3,13 +3,16 @@
 LayerTableView::LayerTableView(QWidget *parent)
 : QTableView(parent)
 {
+    connect(this,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(edititem(QModelIndex)));
     setWindowFlags(Qt::Window |Qt::WindowCloseButtonHint);
-    notifytime = 5000;
+
+    notifytime = 10000;
     notifymusic = ":/WA06.wav";
     notifyicon = ":/wei.png";
     sys_notify = false;
     notify = new Notify;
-
+    doing = Nothing;
+    editor = nullptr;
     delegate = new LayerItemDelegate();
     model = new LayerTableModel();
     this->setContentsMargins(0, 0, 0, 0);
@@ -39,7 +42,7 @@ LayerTableView::LayerTableView(QWidget *parent)
 
     connect(&timer,SIGNAL(timeout()),this,SLOT(timeout()));
   //  timer.setSingleShot(false);
-    timer.start(1000);
+    timer.start(800);
     readpos();
 }
 
@@ -104,13 +107,18 @@ void LayerTableView::contextMenuEvent(QContextMenuEvent * event)
 {
     QMenu *pMenu = new QMenu(this);
     QAction *pAddGroupAct = new QAction(tr("添加"), pMenu);
-    connect(pAddGroupAct ,SIGNAL(triggered(bool)),this,SLOT(addNewLayer()) );
+    connect(pAddGroupAct ,SIGNAL(triggered(bool)),this,SLOT(additem()) );
     pMenu->addAction(pAddGroupAct);
-    pAddGroupAct = new QAction(tr("删除"), pMenu);
-    connect(pAddGroupAct ,SIGNAL(triggered(bool)),this,SLOT(deleteLayer()) );
-    pMenu->addAction(pAddGroupAct);
-    pMenu->popup(mapToGlobal(event->pos()));
-
+    if(this->currentIndex().isValid())
+    {
+        pAddGroupAct = new QAction(tr("便签开/关"), pMenu);
+        connect(pAddGroupAct ,SIGNAL(triggered(bool)),this,SLOT(changenote()) );
+        pMenu->addAction(pAddGroupAct);
+        pAddGroupAct = new QAction(tr("删除"), pMenu);
+        connect(pAddGroupAct ,SIGNAL(triggered(bool)),this,SLOT(deleteLayer()) );
+        pMenu->addAction(pAddGroupAct);
+        pMenu->popup(mapToGlobal(event->pos()));
+    }
 }
 
 void LayerTableView::addNewLayer()    //空白的就不保存了。
@@ -150,6 +158,17 @@ void LayerTableView::deleteLayer()
     int currentrow = this->currentIndex().row();
     if(currentrow < 0 && model->rowCount(model->index(0,1))<=0) return;
     //model->deleteItem(model->getSelecttedRow());
+    QModelIndex index= model->index(this->currentIndex().row(),1);
+    LayerItem item = model->data(index,Qt::EditRole).value<LayerItem>();
+    if(hasitem(item.id))
+    {
+        desktopNote *note = notelist.value(item.id);
+        note->close();
+        note = nullptr;
+        notelist.remove(item.id);
+    }
+    QFile f(cfgpath+"/"+ item.id);//删除配置文件
+    if(f.exists()) f.remove();
     model->deleteItem(currentrow);
     model->refreshModel();
     model->savelist();
@@ -166,7 +185,7 @@ bool LayerTableView::readlist()
 
     QFile file;
     QString path = cfgpath+"/notelist";
-    qDebug()<<path;
+    qDebug()<<"readlist"<<path;
     file.setFileName(path);
     QDataStream in(&file);
     if(file.open(QIODevice::ReadOnly))
@@ -174,10 +193,11 @@ bool LayerTableView::readlist()
         LayerItem item;
         for(;!in.atEnd();)
         {
+            doing = AddItemNoUpdateList;//使editfinished里不update
             in>>item;
             if(item.type>3) return false;
-           qDebug()<<item.note<<item.type<<item.pre;
-           model->addItem(item,false);//由于多此重复操作，所以不updatetaskslist，后面手动update
+           qDebug()<<item.isnote<<item.isnote<<item.note<<item.date<<item.tmpqstring<<item.pre<<item.onetime<<item.type<<item.time;
+           editfinished(item);//配合doing = AddItemNoUpdateList;
         }
         model->refreshModel();
         this->resizeRowsToContents();
@@ -185,7 +205,8 @@ bool LayerTableView::readlist()
         model->update_taskslist();//完成后手动update
         return true;
     }
-    else return false;
+    file.close();
+    return false;
 }
 
 
@@ -198,7 +219,7 @@ void LayerTableView::timeout()//不能没事件时停止timer，停止了进入�
     for(int i=0;i<len;i++)
     {
         QTime now = QTime::currentTime();
-        if(todaylist.at(i).time.toString("h:m:s")==now.toString("h:m:s"))
+        if(todaylist.at(i).time.toString("hh:mm:ss")==now.toString("hh:mm:ss"))
         {
             qDebug()<<"bling!!!!!!";
             if(sys_notify)
@@ -215,21 +236,31 @@ void LayerTableView::timeout()//不能没事件时停止timer，停止了进入�
                 if(notify->isHidden()) notify->show();
             }
             this->clearSelection();
-            if(todaylist[i].onetime)
+            if( todaylist[i].onetime )
             {
-                this->clearSelection();
-                itemClicked(todaylist[i].index);
+                itemClicked(todaylist[i].index);//里面会updatetasklist
+                QModelIndex index=model->index(todaylist[i].index.row(),1);
+                LayerItem i = model->data(index,Qt::EditRole).value<LayerItem>();
+                if(hasitem(i.id))
+                {
+                    desktopNote *note;
+                    note = notelist.value(i.id);
+                    note->setdata(i);//设置新数据
+                    note->initnote();//刷新便签
+                }
             }
-            else model->update_taskslist();
-
+            else {
+                model->update_taskslist();
+            }
         }
     }
-    timer.start(1000);
+    timer.start(800);
 }
 
 void LayerTableView::savepos()
 {
-    QSettings settings("ShengSoft", "Note");
+    QString cfg = cfgpath+"/noetwei";
+    QSettings settings(cfg,QSettings::NativeFormat);
     settings.setValue("size", size());
     settings.setValue("pos", pos());
     settings.setValue("notifytime",notifytime);
@@ -237,11 +268,12 @@ void LayerTableView::savepos()
     settings.setValue("notifyicon",notifyicon);
     bool visi = this->isVisible();
     settings.setValue("isshow",visi);
-    qDebug()<<visi;
+    qDebug()<<"LayerTableView::savepos()"<<visi;
 }
 void LayerTableView::readpos()
 {
-    QSettings settings("ShengSoft", "Note");
+    QString cfg = cfgpath+"/noetwei";
+    QSettings settings(cfg,QSettings::NativeFormat);
     resize(settings.value("size", QSize(360, 450)).toSize());//因为没得调大小，所以不要记录大小了
     int x=QApplication::desktop()->width()/2-width()/2;
     int y=QApplication::desktop()->height()/2-height()/2;
@@ -273,4 +305,193 @@ void LayerTableView::setnotify(int t,QString m,QString i)
     qDebug()<<"setnotify ed";
     set->close();
 
+}
+
+
+//==================================================================================
+
+void LayerTableView:: edititem(const QModelIndex& index){
+    if (index.column() == 0) return;
+    if(editor!=nullptr) return;
+    doing = EditItem;
+    editor = new editnote();
+    editor->setWindowFlags(Qt::CustomizeWindowHint|Qt::Window|Qt::WindowTitleHint);//使用窗口管理器
+    editor->setWindowTitle("编辑");
+    //editor->setWindowModality(Qt::ApplicationModal);//独占，其他窗口不能操作
+    //editor->setAttribute(Qt::WA_DeleteOnClose);
+    editor->resize(this->size());
+    editor->move(QApplication::desktop()->width()/2-editor->width()/2,QApplication::desktop()->height()/2-editor->height()/2);
+    LayerItem item = model->data(index,Qt::EditRole).value<LayerItem>();
+    editor->setdata(item);
+    connect(editor,SIGNAL(setfinished(LayerItem,QPixmap)),this,SLOT(noteedited(LayerItem)));//利用noteedited()，不需要独占
+    connect(editor,SIGNAL(editcancel()),this,SLOT(editcancel()));
+    editor->show();
+
+}
+
+void LayerTableView:: additem(){
+    doing = AddItem;
+    if(editor!=nullptr) return;
+    editor = new editnote();
+    editor->setWindowFlags(Qt::CustomizeWindowHint|Qt::Window|Qt::WindowTitleHint);//使用窗口管理器
+    editor->setWindowTitle("编辑");
+    //editor->setAttribute(Qt::WA_DeleteOnClose);
+    editor->resize(this->size());
+    editor->move(QApplication::desktop()->width()/2-editor->width()/2,QApplication::desktop()->height()/2-editor->height()/2);
+    connect(editor,SIGNAL(setfinished(LayerItem,QPixmap)),this,SLOT(editfinished(LayerItem)));
+    connect(editor,SIGNAL(editcancel()),this,SLOT(editcancel()));
+    editor->show();
+}
+
+void LayerTableView::editfinished(const LayerItem &i)
+{
+    if(doing == EditItem || doing == EditbyNote)
+    {
+        desktopNote *note;
+        QModelIndex index = this->currentIndex();
+        qDebug()<<index.row()<<index.column();
+        if(index.column()==0) return;
+        QVariant data;
+        data.setValue(i);
+        model->setData(index,data,Qt::EditRole);
+        index = model->index(index.row(),0);//设置isenable
+        data.setValue(i.isenable);
+        model->setData(index,data,Qt::CheckStateRole);
+        if(i.isnote^hasitem(i.id))//异或，有变无，无变有
+        {
+            qDebug()<<"note has change";
+            if(i.isnote){
+                //无变有
+                qDebug()<<"none->has";
+                if(i.color.indexOf("png")!=-1)
+                    note = new desktopNote(i,true,this);
+                else
+                    note = new desktopNote(i,false,this);
+                connect(note,SIGNAL(finished(LayerItem)),this,SLOT(noteedited(LayerItem)));
+                connect(note,SIGNAL(addnote()),this,SLOT(addanote()));
+                connect(note,SIGNAL(reboot2alpha(LayerItem&)),this,SLOT(noteneedreboot(LayerItem&)));
+                connect(note,SIGNAL(notedel(QString)),this,SLOT(delnote(QString)));
+                note->setdata(i);
+                note->initnote();
+                qDebug()<<i.id;
+                notelist.insert(i.id,note);
+            }
+            else {//有变无
+                qDebug()<<"has->none";
+                note = notelist.value(i.id);
+                note->close();
+                note = nullptr;
+                notelist.remove(i.id);
+            }
+
+        }
+        else if(i.isnote && doing == EditItem) {
+            //通过便签设置内容
+            qDebug()<<"edititem by note";
+            note = notelist.value(i.id);
+            note->setdata(i);//设置新数据
+            note->initnote();//刷新便签
+        }
+
+
+    }
+    else if(doing == AddItem||doing == AddItemNoUpdateList)
+    {
+        LayerItem item = i;
+        if(doing == AddItemNoUpdateList){
+            model->addItem(item,false);//这里是读取配置用的，已经有id
+        }
+        else {
+            item.id = QDateTime().currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+            qDebug()<<"id:"<<item.id;
+            model->addItem(item,true);
+            model->refreshModel();
+            this->resizeRowsToContents();
+        }
+        if(item.isnote)
+        {
+            desktopNote *note;
+            if(item.color.indexOf("png")!=-1)
+                note = new desktopNote(item,true,this);
+            else
+                note = new desktopNote(item,false,this);
+            connect(note,SIGNAL(finished(LayerItem)),this,SLOT(noteedited(LayerItem)));
+            connect(note,SIGNAL(addnote()),this,SLOT(addanote()));
+            connect(note,SIGNAL(reboot2alpha(LayerItem&)),this,SLOT(noteneedreboot(LayerItem&)));
+            connect(note,SIGNAL(notedel(QString)),this,SLOT(delnote(QString)));
+
+            //note->setdata(item);
+            notelist.insert(item.id,note);
+        }
+    }
+
+    model->update_taskslist();
+    doing = Nothing;
+    if(editor!=nullptr) editor->close();
+    editor = nullptr;
+    qDebug()<<"editfinished";
+}
+
+bool LayerTableView::hasitem(QString id)
+{
+    for(int i=0;i<notelist.count();i++)
+    {
+        if(notelist.contains(id)) return true;
+    }
+    return false;
+}
+
+void LayerTableView::noteedited(const LayerItem& item){
+    LayerItem i = item;
+    int row = model->findbbyid(item.id);
+    qDebug()<<"row"<<row;
+    this->setCurrentIndex(model->index(row,1));
+    doing = EditbyNote;
+    editfinished(i);
+}
+
+void LayerTableView::addanote()
+{
+    doing = AddItem;
+    LayerItem item;
+    item.color="#ffffff";
+    item.isenable = true;
+    item.isnote = true;
+    item.type = 0;
+    item.pre = "0";
+    item.note="";
+    editfinished(item);
+}
+
+void LayerTableView::noteneedreboot(LayerItem &i){
+    desktopNote *note;
+    note = notelist.value(i.id);
+    note->close();
+    note = nullptr;
+    notelist.remove(i.id);
+    editfinished(i);
+
+}
+
+void LayerTableView::delnote(QString id)
+{
+    int row = model->findbbyid(id);
+    this->setCurrentIndex(model->index(row,1));
+    deleteLayer();
+}
+
+void LayerTableView::editcancel()
+{
+    editor->close();
+    editor = nullptr;
+}
+
+void LayerTableView::changenote()
+{
+    QModelIndex index = this->currentIndex();
+    index = model->index(index.row(),1);
+    LayerItem item = model->data(index,Qt::EditRole).value<LayerItem>();
+    item.isnote = !item.isnote;//取反
+    doing = EditItem;
+    editfinished(item);
 }

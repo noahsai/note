@@ -5,7 +5,6 @@ LayerTableModel::LayerTableModel(QObject *parent)
 : QAbstractTableModel(parent)
 {
    // selectedRow = 0;//暂时不用，感觉对于我的程序没用。
-
 }
 
 LayerTableModel::~LayerTableModel()
@@ -59,13 +58,13 @@ QVariant LayerTableModel::data(const QModelIndex &index, int role) const
 
 int LayerTableModel::rowCount(const QModelIndex &parent) const
 {
-    return (parent.isValid() && parent.column() != 0) ? 0 : layerList.size();
+    return (parent.isValid() && parent.column() != 0) ? 0 : layerList.size();//这里使model与layerlist关联起来！！
 }
 
 int LayerTableModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 2;
+    return 2;//这里默认表格是两列
 }
 
 QVariant LayerTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -86,12 +85,15 @@ Qt::ItemFlags LayerTableModel::flags(const QModelIndex &index) const
     if (index.column() == 0)
         return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable;
 
-    return  Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+    return  Qt::ItemIsEnabled | Qt::ItemIsSelectable ;//尝试用最常规方法，不用editable
+
+    //return  Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
 }
 
 bool LayerTableModel::setData(const QModelIndex &index, const
     QVariant &val, int role)
 {
+    qDebug()<<"setdata";
     if (!index.isValid())
     {
         return false;
@@ -100,7 +102,7 @@ bool LayerTableModel::setData(const QModelIndex &index, const
     if (role == Qt::CheckStateRole && val.type() == QVariant::Bool)
     {
         layerList[index.row()].isenable = val.toBool();
-        emit(dataChanged(index, index));
+        //emit(dataChanged(index, index));
         update_taskslist();
         savelist();
         return true;
@@ -110,7 +112,7 @@ bool LayerTableModel::setData(const QModelIndex &index, const
         LayerItem va = val.value<LayerItem>();
         va.isenable = true;
         layerList.replace(index.row(),va);
-        emit(dataChanged(index, index));
+        //emit(dataChanged(index, index));
         update_taskslist();
         savelist();
         return true;
@@ -143,27 +145,29 @@ void LayerTableModel::addItem()
 {
     LayerItem item;
 
-        item.note = QString("空白事件。");
+    item.note = QString("空白事件。");
 
     item.isenable = false;
     item.onetime = false;
     item.type = -1;
     layerList.append(item);
     //this->insertRow()
-    //emit(dataChanged(index, index));
+    ////emit(dataChanged(index, index));
    // qDebug()<<layerList.size();
 }
 
 
-void LayerTableModel::addItem(LayerItem& add,bool update_tasks_list)
+void LayerTableModel::addItem(const LayerItem& add,bool update_tasks_list)
 {
     LayerItem item = add;
     layerList.append(item);
     //this->insertRow()
-    //emit(dataChanged(index, index));
+    ////emit(dataChanged(index, index));
    // qDebug()<<layerList.size();
-    savelist();
-    if(update_tasks_list) update_taskslist();
+    if(update_tasks_list){
+        update_taskslist();
+        savelist();
+    }
 
 }
 
@@ -177,7 +181,7 @@ void LayerTableModel::refreshModel()
 QModelIndex LayerTableModel::selecttedIndex(int row,int col)
 {
     QModelIndex m= this->createIndex(row, col);
-    qDebug()<<"selected:"<<row;
+ //   qDebug()<<"selected:"<<row;
     return m;
 }
 
@@ -196,16 +200,17 @@ bool LayerTableModel::savelist()
 {
     QFile file;
     QString path = cfgpath+"/notelist";
-    qDebug()<<path;
+    qDebug()<<"savelist"<<path;
     file.setFileName(path);
     if(file.open(QIODevice::WriteOnly))
     {
         QDataStream out(&file);
+        qDebug()<<layerList.count();
         for(int i=0;i<layerList.count();i++)
         {
             out<<layerList[i];
         }
-
+        qDebug()<<"updated";
         file.close();
         return true;
     }
@@ -233,6 +238,7 @@ void LayerTableModel::update_taskslist()
                 QString date = value.date;
                 QDate setday ;
                 int pos = date.indexOf(QRegularExpression("\\d{1,2}$"));
+                //检测是哪种输入格式xxxx-xx-xx 或 xx-xx
                 switch (pos)
                 {
                 case 7:
@@ -265,6 +271,7 @@ void LayerTableModel::update_taskslist()
                     item.time = settime;
                     item.note = value.note;
                     item.onetime = value.onetime;
+                    item.isnote = value.isnote;
                     todaylist.append(item);
                     qDebug()<<"今天的事件，进入计时列表"<<value.time<<item.time;
                 }
@@ -274,6 +281,7 @@ void LayerTableModel::update_taskslist()
         {
             if(value.time.isEmpty()) continue;
             QString weeks = value.pre;
+            if(weeks.isEmpty()) weeks = "0";
             QStringList weeklist = weeks.split(",");
             for(int i=0;i<weeklist.count();i++)
             {
@@ -293,6 +301,7 @@ void LayerTableModel::update_taskslist()
                     item.index = index(i,0);
                     item.time = settime;
                     item.onetime = value.onetime;
+                    item.isnote = value.isnote;
                     todaylist.append(item);
                     qDebug()<<"今天的星期事件，进入计时列表"<<value.time;;
                     break;//每天只有一个时间，所以找到一个有效日子就足够了。
@@ -310,12 +319,14 @@ void LayerTableModel::update_taskslist()
             setday=QDate::fromString(date2,"yyyy.M.d");
             QDate today;
             today = today.currentDate();
-            int someday = value.pre.toInt();
+            int someday ;
+            if(value.pre.isEmpty()) someday = 0;
+            else someday = value.pre.toInt();
+
             int days = setday.daysTo(today);
             if(days<0) break;
             if((days%someday == 0)||((days%someday)==1&&value.time=="00:00"))
             {
-                qDebug()<<"今天的几日事件，进入计时列表"<<value.time;;
                 todayitem item;
                 item.index = (index(i,0));
                 QTime settime;
@@ -325,8 +336,9 @@ void LayerTableModel::update_taskslist()
                 item.time = settime;
                 item.note = value.note;
                 item.onetime = value.onetime;
-
+                item.isnote = value.isnote;
                 todaylist.append(item);
+                qDebug()<<"今天的几日事件，进入计时列表"<<value.time;;
             }
             break;
         }
@@ -336,7 +348,8 @@ void LayerTableModel::update_taskslist()
             todayitem item;
             item.index = index(i,0);
             int need;
-            if(value.pre.toInt()==0) need = 0;
+            if(value.pre.isEmpty()) need =0;
+            else if(value.pre.toInt()==0) need = 0;
             else
             {
                 QTime starttime;
@@ -352,6 +365,8 @@ void LayerTableModel::update_taskslist()
             layerList.replace(i,value);
             item.note = value.note;
             item.onetime = value.onetime;
+            item.isnote = value.isnote;
+
             todaylist.append(item);
             qDebug()<<"今天的计时事件，进入计时列表"<<settime;;
             break;
@@ -365,4 +380,14 @@ void LayerTableModel::update_taskslist()
 QList<todayitem> LayerTableModel::get_tarkslist()
 {
     return todaylist;
+}
+
+
+int LayerTableModel::findbbyid(QString id)
+{
+    for(int i=0;i<layerList.count();i++)
+    {
+        if(layerList[i].id==id) return i;
+    }
+    return -1;
 }

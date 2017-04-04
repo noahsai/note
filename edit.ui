@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>450</width>
-    <height>58</height>
+    <width>204</width>
+    <height>223</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
 {
 border: 1px solid;
 border-radius:9px;
-border-color:rgb(190, 190, 190)
+border-color:rgb(190, 190, 190);
 }</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -41,12 +41,280 @@ border-color:rgb(190, 190, 190)
     <number>2</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <property name="spacing">
+      <number>0</number>
+     </property>
      <item>
-      <widget class="QLineEdit" name="note"/>
+      <widget class="QSpinBox" name="size">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>45</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>0</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>文字大小</string>
+       </property>
+       <property name="minimum">
+        <number>9</number>
+       </property>
+       <property name="maximum">
+        <number>70</number>
+       </property>
+       <property name="value">
+        <number>12</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="bold">
+       <property name="maximumSize">
+        <size>
+         <width>26</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>粗体</string>
+       </property>
+       <property name="text">
+        <string>B</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="color">
+       <property name="maximumSize">
+        <size>
+         <width>26</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>文字颜色</string>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>Α</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="align">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>对齐方式</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="duplicatesEnabled">
+        <bool>false</bool>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>居中</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>左对齐</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>右对齐</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancel">
+       <property name="maximumSize">
+        <size>
+         <width>26</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>15</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>取消</string>
+       </property>
+       <property name="text">
+        <string>✗</string>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="maximumSize">
+        <size>
+         <width>26</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>15</pointsize>
+        </font>
+       </property>
+       <property name="toolTip">
+        <string>完成</string>
+       </property>
+       <property name="text">
+        <string>✓</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="note">
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="tabStopWidth">
+      <number>16</number>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QComboBox" name="type">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>50</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <property name="frame">
+        <bool>true</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>定期</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>星期</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>天数</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>分钟</string>
+        </property>
+       </item>
+      </widget>
      </item>
      <item>
       <widget class="QCheckBox" name="onetime">
+       <property name="maximumSize">
+        <size>
+         <width>50</width>
+         <height>26</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>提醒后自动关闭</string>
        </property>
@@ -61,12 +329,24 @@ border-color:rgb(190, 190, 190)
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QComboBox" name="type">
+      <widget class="QCheckBox" name="checkBox">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>开启便签</string>
+       </property>
+       <property name="text">
+        <string>便签</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -75,38 +355,19 @@ border-color:rgb(190, 190, 190)
        </property>
        <property name="maximumSize">
         <size>
-         <width>70</width>
-         <height>16777215</height>
+         <width>26</width>
+         <height>26</height>
         </size>
        </property>
-       <property name="currentIndex">
-        <number>-1</number>
+       <property name="text">
+        <string>底色</string>
        </property>
-       <property name="frame">
-        <bool>true</bool>
-       </property>
-       <item>
-        <property name="text">
-         <string>定    期</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>星期 x</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string> x 天</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string> x 分钟</string>
-        </property>
-       </item>
       </widget>
      </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
@@ -126,8 +387,31 @@ border-color:rgb(190, 190, 190)
        <property name="text">
         <string/>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
+     <item>
+      <widget class="QCheckBox" name="enable">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>21</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>启动定时提醒</string>
+       </property>
+       <property name="text">
+        <string>响铃</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
@@ -141,6 +425,9 @@ border-color:rgb(190, 190, 190)
         <string>不填写时默认是当前时间。
 格式：23:12 或 23.12（[时间分隔符允许 . - / ]）
 </string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
@@ -163,6 +450,9 @@ border-color:rgb(190, 190, 190)
         <string>星期：用1-7表示，多个用 , 隔开。例如：1,2,4,6,7
 天数：只填一个数字。
 注意：不对输入的星期或天数进行判断。请正确输入。</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>

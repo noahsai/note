@@ -8,7 +8,6 @@
 #include<QTime>
 struct LayerItem
 {
-
     bool isenable;
     QString note;
     bool onetime;
@@ -16,9 +15,11 @@ struct LayerItem
     QString date;
     QString time;
     QString pre;
-    bool tmpbool;
-    int tmpint;
+    bool isnote;
+    QString id;
     QString tmpqstring;
+    QString html;
+    QString color;
 };
 Q_DECLARE_METATYPE(LayerItem)
 
@@ -26,13 +27,13 @@ Q_DECLARE_METATYPE(LayerItem)
 
  inline QDataStream& operator<<(QDataStream& out, const LayerItem& item)
  {
-     out<<item.isenable<<item.note<<item.onetime<<item.type<<item.date<<item.time<<item.pre<<item.tmpbool<<item.tmpint<<item.tmpqstring;
+     out<<item.isenable<<item.note<<item.onetime<<item.type<<item.date<<item.time<<item.pre<<item.isnote<<item.id<<item.tmpqstring<<item.html<<item.color;
      return out;
  }
 
  inline QDataStream& operator>>(QDataStream& in,LayerItem& item)
  {
-     in>>item.isenable>>item.note>>item.onetime>>item.type>>item.date>>item.time>>item.pre>>item.tmpbool>>item.tmpint>>item.tmpqstring;
+     in>>item.isenable>>item.note>>item.onetime>>item.type>>item.date>>item.time>>item.pre>>item.isnote>>item.id>>item.tmpqstring>>item.html>>item.color;
     return in;
  }
 
@@ -43,6 +44,16 @@ Q_DECLARE_METATYPE(LayerItem)
      QTime time;
      QString note;
      bool onetime;
+     bool isnote;
  };
+
+ enum DOING {
+     AddItem,
+     AddItemNoUpdateList,
+     EditItem,
+     EditbyNote,
+     Nothing
+ };
+
 
 #endif // LAYERITEM_H

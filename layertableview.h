@@ -18,7 +18,9 @@
 #include<QDesktopWidget>
 #include<notify.h>
 #include<notifyset.h>
-
+#include<desktopnote.h>
+#include<edit.h>
+#include<QLayout>
 //extern QString cfgpath;//全局变量,已在model.h里声明
 
 
@@ -39,6 +41,7 @@ public slots:
 protected:
     void contextMenuEvent(QContextMenuEvent * event);
     void closeEvent(QCloseEvent *event);
+
 private slots:
     void itemClicked(const QModelIndex&);
     void timeout();
@@ -47,6 +50,16 @@ private slots:
     void setnotify(int,QString,QString);
     void newnotify();
 
+    void edititem(const QModelIndex&);
+    void additem();
+    void editfinished(const LayerItem&);
+    void noteedited(const LayerItem&);
+   // void rebootnote(QString,bool);
+    void addanote();
+    void noteneedreboot(LayerItem&);
+    void delnote(QString id);
+    void editcancel();
+    void changenote();
 private:
     LayerItemDelegate *delegate;
     LayerTableModel *model;
@@ -59,7 +72,7 @@ private:
     void creattrayicon();
     void savepos();
     void readpos();
-
+    bool hasitem(QString id);
     int notifytime;
     QString notifymusic;
     QString notifyicon;
@@ -67,6 +80,10 @@ private:
 
     notifyset *set;
     Notify *notify;
+    editnote* editor;
+    QMap<QString,desktopNote*> notelist;
+    DOING doing;
+
 
 };
 

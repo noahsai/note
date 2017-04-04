@@ -7,7 +7,7 @@
 #include <QPainter>
 #include <edit.h>
 #include<layeritem.h>
-
+#include<QStaticText>
 class LayerItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT

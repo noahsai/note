@@ -33,7 +33,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role);
     void deleteItem(int index);
     void addItem();
-    void addItem(LayerItem& add,bool withsave);
+    void addItem(const LayerItem& add,bool withsave);
     void refreshModel();
     QModelIndex selecttedIndex(int row,int col);
 
@@ -42,6 +42,7 @@ public:
     bool savelist();
     QList<todayitem> get_tarkslist();
     void update_taskslist();
+    int findbbyid(QString id);
 
 public slots:
     void changeLayerVisibility(const QModelIndex&);
