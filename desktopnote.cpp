@@ -95,7 +95,6 @@ desktopNote::desktopNote(LayerItem i ,bool alpha,QWidget *parent) :
 
 desktopNote::~desktopNote()
 {
-    savepos();
     delete ui;
 }
 

@@ -240,6 +240,8 @@ void editnote::on_pre_editingFinished()
 
 void editnote::on_pushButton_clicked()
 {
+    on_date_editingFinished();
+    on_time_editingFinished();
     //qDebug()<<"warp"<<ui->note->document()->defaultTextOption().wrapMode();
     QPixmap pix(ui->note->width(),ui->note->height());
     if(item.color.indexOf("png")!=-1)//只有png时才支持透明，jpg和纯色不需要
@@ -256,7 +258,7 @@ void editnote::on_pushButton_clicked()
    // pix.save(cfgpath+"/66.png");
     qDebug()<<this->geometry()<<ui->note->size();
 
-    if(item.pre.isEmpty()) item.pre = "0";
+    if(item.pre.isEmpty()) item.pre = "1";
     if(item.note.isEmpty()) item.note = "空白事件";
     if(item.color.isEmpty()) item.color = "#ffffff";
     emit setfinished(item,pix);

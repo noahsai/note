@@ -1,5 +1,7 @@
 #include "layeritemdelegate.h"
 
+
+
 QString change(QString& in)
 {
     QString out = in;
@@ -36,13 +38,21 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
     if (index.column() == 1) // value column
     {
         QString deadline;
+        QRect rect = option.rect;
+        QRect textRect;;
+        LayerItem value = index.model()->data(index, Qt::EditRole).value<LayerItem>();
+
+        QString layerName = value.note;
+        QTextOption textOption;
 
         if (option.state & QStyle::State_Selected)
             painter->fillRect(option.rect, option.palette.highlight());
-       // else             painter->fillRect(option.rect,QColor("red"));
-        QRect rect = option.rect;
-//    qDebug()<<rect;
-        QRect textRect;;
+
+        if(value.isenable&&value.type==3)
+        {
+            deadline = value.tmpqstring;
+        }
+        else  deadline = value.time;
         if(deadline.indexOf(QRegularExpression(":.+:"))==-1){
             textRect.setRect(rect.x()+5, rect.y()+1, rect.width()-75, rect.height()-1);
         }
@@ -51,16 +61,16 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
         }
 //    qDebug()<<textRect;
 
-        LayerItem value = index.model()->data(index, Qt::EditRole).value<LayerItem>();
 
-        QString layerName = value.note;
-        QTextOption textOption;
         textOption.setAlignment( Qt::AlignLeft | Qt::AlignTop);
 //        textOption.setWrapMode(QTextOption::NoWrap);
         QFont font;
         font.setPixelSize(18);
         if (option.state & QStyle::State_Selected)     painter->setPen(QColor(255,255,255));
-        else painter->setPen(QColor(0,0,0));
+        else {
+            if(textcolor.isEmpty())     painter->setPen(QColor(50,50,50));
+            else painter->setPen(QColor(textcolor));
+        }
         painter->setFont(font);
         painter->drawText(textRect, layerName, textOption);
 //====================================================
@@ -82,14 +92,19 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
             path.lineTo(rect.x()+rect.width(),rect.y());
             path.lineTo(rect.x()+rect.width(),rect.y()+20);
             painter->setPen(Qt::NoPen);
-            painter->setBrush(QBrush(QColor("#FF82AB")));
+            if(tipbg.isEmpty())      painter->setBrush(QBrush(QColor("#FF82AB")));
+            else    painter->setBrush(QBrush(QColor(tipbg)));
             if (!(option.state & QStyle::State_Selected)) painter->drawPath(path);
 
             textRect.setRect(rect.x()+rect.width()-10, rect.y(), 10, 12);
 
             font.setPixelSize(10);
             painter->setFont(font);
-            painter->setPen(QColor("white"));
+            if (option.state & QStyle::State_Selected)     painter->setPen(QColor(255,255,255));
+            else {
+                if(tipcolor.isEmpty())      painter->setPen(QColor("white"));
+                else    painter->setPen(QColor(tipcolor));
+            }
             textOption.setAlignment( Qt::AlignHCenter | Qt::AlignVCenter);
             textOption.setWrapMode(QTextOption::NoWrap);
             painter->drawText(textRect,QString("N"),textOption);
@@ -114,7 +129,13 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
 //        else
         font.setPixelSize(25);
         if (option.state & QStyle::State_Selected)     painter->setPen(QColor(255,255,255));
-        else   painter->setPen(QColor("#1E90FF"));
+        else {
+            if (option.state & QStyle::State_Selected)     painter->setPen(QColor(255,255,255));
+            else   {
+                if(timecolor.isEmpty())     painter->setPen(QColor("#1E90FF"));
+                else    painter->setPen(QColor(timecolor));
+            }
+        }
         painter->setFont(font);
         painter->drawText(textRect, deadline, textOption);
 //================================
@@ -141,7 +162,6 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
         }
         case 1:
             if(value.pre.length()==13)   deadline = "每天";
-            else if(value.pre=="0")   deadline = "星期囧";
             else deadline = "星期" + change(value.pre);
             break;
         case 2:
@@ -162,15 +182,19 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
             textRect.setRect(rect.x()+rect.width()-5-r.width()-8,rect.y()+rect.height()-18-2,text.boundingRect(deadline).width()+8,18);//-2是以为你要画圆滑矩形
             painter->setRenderHint(QPainter::Antialiasing);
             painter->setPen(Qt::NoPen);
-            painter->setBrush(QBrush(QColor("#FF82AB")));
+            //if(datebg.isEmpty())    painter->setBrush(QBrush(QColor("#FF82AB")));
+            if(datebg.isEmpty())    painter->setBrush(QBrush(QColor("#cccccc")));
+            else    painter->setBrush(QBrush(QColor(datebg)));
             painter->drawRoundedRect(textRect,9,9);
         }
         textRect.setRect(rect.x()+5-4, rect.y()+rect.height()-18-2, rect.width()-10, 18);//-4是因为框-8
 
-        //if (option.state & QStyle::State_Selected)     painter->setPen(QColor(255,255,255));
+        if (option.state & QStyle::State_Selected)     painter->setPen(QColor(255,255,255));
         //else   painter->setPen(QColor(120,120,120));
-
-         painter->setPen(QColor(255,255,255));
+        else {
+            if(datecolor.isEmpty())    painter->setPen(QColor(255,255,255));
+            else    painter->setPen(QColor(datecolor));
+        }
          painter->setFont(font);
 
         painter->drawText(textRect, deadline, textOption);
@@ -184,9 +208,22 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
             painter->fillRect(option.rect, option.palette.highlight());
         QRect rect = option.rect;
 
-        if(index.data(Qt::CheckStateRole)==Qt::Checked)
-            painter->drawImage(rect.x()+rect.width()/2-15,rect.y()+20,QImage(":/on.png"));
-        else painter->drawImage(rect.x()+rect.width()/2-15,rect.y()+20,QImage(":/off.png"));
+        if(index.data(Qt::CheckStateRole)==Qt::Checked){
+            if(onpic)   {
+                QPixmap pix(cfgpath+"/on.png");
+                pix = pix.scaled(30,30,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+                painter->drawImage(rect.x()+rect.width()/2-15,rect.y()+rect.height()/2-15,pix.toImage());
+            }
+            else    painter->drawImage(rect.x()+rect.width()/2-15,rect.y()+rect.height()/2-15,QImage(":/on.png"));
+        }
+        else {
+            if(offpic)   {
+                QPixmap pix(cfgpath+"/off.png");
+                pix = pix.scaled(30,30,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+                painter->drawImage(rect.x()+rect.width()/2-15,rect.y()+rect.height()/2-15,pix.toImage());
+            }
+            else painter->drawImage(rect.x()+rect.width()/2-15,rect.y()+rect.height()/2-15,QImage(":/off.png"));
+        }
     }
 //    else
 //    {

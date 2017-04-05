@@ -1,11 +1,25 @@
 #include "layertableview.h"
 
+
+//==Theme==
+QString selectedcolor="";
+QString textcolor="";
+QString timecolor="";
+QString datecolor="";
+QString datebg="";
+QString tipcolor="";
+QString tipbg="";
+bool onpic=false;
+bool offpic=false;
+//=============
+
 LayerTableView::LayerTableView(QWidget *parent)
 : QTableView(parent)
 {
     connect(this,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(edititem(QModelIndex)));
     setWindowFlags(Qt::Window |Qt::WindowCloseButtonHint);
 
+    set = nullptr;
     notifytime = 10000;
     notifymusic = ":/WA06.wav";
     notifyicon = ":/wei.png";
@@ -43,12 +57,14 @@ LayerTableView::LayerTableView(QWidget *parent)
     connect(&timer,SIGNAL(timeout()),this,SLOT(timeout()));
   //  timer.setSingleShot(false);
     timer.start(800);
+    readtheme();
     readpos();
 }
 
 LayerTableView::~LayerTableView()
 {
     savepos();
+    savetheme();
 }
 
 void LayerTableView::activate(QSystemTrayIcon::ActivationReason reason)
@@ -58,8 +74,8 @@ void LayerTableView::activate(QSystemTrayIcon::ActivationReason reason)
 //        this->show();
 //        this->activateWindow();
         show_hide(!isVisible());
+        savepos();
     }
-    savepos();
 }
 
 
@@ -89,11 +105,37 @@ void LayerTableView::creattrayicon()
 
 void LayerTableView::newnotify()
 {
+    if(set!=nullptr) return;
     set = new notifyset;
     set->setinit(notifytime,notifymusic,notifyicon);
     connect(set,SIGNAL(ok(int,QString,QString)),this,SLOT(setnotify(int,QString,QString)));
+    connect(set,SIGNAL(selectcolorset()),this,SLOT(setselectcolor()));
+    connect(set,SIGNAL(destroyed(QObject*)),this,SLOT(settingclose()));
+    connect(set,SIGNAL(freshtheme()),this,SLOT(freshtheme()));
+
     set->show();
 }
+
+void LayerTableView::freshtheme(){
+}
+
+void LayerTableView::settingclose()
+{
+    set = nullptr;
+}
+
+void LayerTableView::setselectcolor(){
+   if(selectedcolor.isEmpty()) {
+       setStyleSheet("QTableView {\
+                                selection-background-color :  qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(125, 214, 221, 255), stop:0.505618 rgba(128, 199, 223, 255), stop:1 rgba(108, 201, 230, 255));\
+                                             gridline-color:rgb(230, 230, 230) ;\}");
+    }
+    else {
+        QString s ="QTableView {selection-background-color :";
+        setStyleSheet(s + selectedcolor + ";}");
+    }
+}
+
 
 void LayerTableView::closeEvent(QCloseEvent *event)
 {
@@ -109,7 +151,7 @@ void LayerTableView::contextMenuEvent(QContextMenuEvent * event)
     QAction *pAddGroupAct = new QAction(tr("添加"), pMenu);
     connect(pAddGroupAct ,SIGNAL(triggered(bool)),this,SLOT(additem()) );
     pMenu->addAction(pAddGroupAct);
-    if(this->currentIndex().isValid())
+    if(this->indexAt(event->pos()).isValid())
     {
         pAddGroupAct = new QAction(tr("便签开/关"), pMenu);
         connect(pAddGroupAct ,SIGNAL(triggered(bool)),this,SLOT(changenote()) );
@@ -117,8 +159,8 @@ void LayerTableView::contextMenuEvent(QContextMenuEvent * event)
         pAddGroupAct = new QAction(tr("删除"), pMenu);
         connect(pAddGroupAct ,SIGNAL(triggered(bool)),this,SLOT(deleteLayer()) );
         pMenu->addAction(pAddGroupAct);
-        pMenu->popup(mapToGlobal(event->pos()));
     }
+    pMenu->popup(mapToGlobal(event->pos()));
 }
 
 void LayerTableView::addNewLayer()    //空白的就不保存了。
@@ -154,24 +196,68 @@ void LayerTableView::itemClicked(const QModelIndex& index)
 
 void LayerTableView::deleteLayer()
 {
-    qDebug()<<"delete";
-    int currentrow = this->currentIndex().row();
-    if(currentrow < 0 && model->rowCount(model->index(0,1))<=0) return;
-    //model->deleteItem(model->getSelecttedRow());
-    QModelIndex index= model->index(this->currentIndex().row(),1);
-    LayerItem item = model->data(index,Qt::EditRole).value<LayerItem>();
-    if(hasitem(item.id))
+    qDebug()<<"Delete items";
+//    int currentrow = this->currentIndex().row();
+//    if(currentrow < 0 && model->rowCount(model->index(0,1))<=0) return;
+//    //model->deleteItem(model->getSelecttedRow());
+//    QModelIndex index= model->index(this->currentIndex().row(),1);
+//    LayerItem item = model->data(index,Qt::EditRole).value<LayerItem>();
+//    if(hasitem(item.id))
+//    {
+//        desktopNote *note = notelist.value(item.id);
+//        note->close();
+//        note = nullptr;
+//        notelist.remove(item.id);
+//    }
+//    QFile f(cfgpath+"/"+ item.id);//删除配置文件
+//    if(f.exists()) f.remove();
+//    model->deleteItem(currentrow);
+//    model->refreshModel();
+//    model->savelist();
+
+    QModelIndexList seledlist = this->selectedIndexes();
+    QModelIndex index;
+    LayerItem item;
+    QStringList removelist;
+    for(int i=0;i<seledlist.length();i++)
     {
-        desktopNote *note = notelist.value(item.id);
-        note->close();
-        note = nullptr;
-        notelist.remove(item.id);
+        index = seledlist.at(i);
+        if(index.column()==1){
+            item = model->data(index,Qt::EditRole).value<LayerItem>();
+            removelist.append(item.id);
+            qDebug()<<"found need delete item"<<item.id;
+        }
     }
-    QFile f(cfgpath+"/"+ item.id);//删除配置文件
-    if(f.exists()) f.remove();
-    model->deleteItem(currentrow);
+    qDebug()<<removelist.length()<<"need remove";
+    QString id;
+    for(int i=0;i<removelist.count();i++)
+    {
+        qDebug()<<"--------\nDeleting item";
+        id=removelist.at(i);
+        if(hasitem(id))
+        {
+            qDebug()<<"close item note"<<id;
+            desktopNote *note = notelist.value(id);
+            note->close();
+            note = nullptr;
+            notelist.remove(id);
+            qDebug()<<id<<"note closed";
+
+        }
+        QFile f(cfgpath+"/"+ id);//删除配置文件
+        f.close();
+        if(f.exists()) {
+            qDebug()<<"to delete note cfg"<<f.fileName();
+            if(f.remove()) qDebug()<<"deleted cfg";
+        }
+        model->deleteItem(id );
+        qDebug()<<"Item deleted"<<id;
+    }
     model->refreshModel();
+    model->update_taskslist();//delete完要手动updatelist
     model->savelist();
+    qDebug()<<"All Deleted";
+
 }
 
 void LayerTableView::setLayerSize(QSize s)
@@ -319,7 +405,7 @@ void LayerTableView:: edititem(const QModelIndex& index){
     editor->setWindowTitle("编辑");
     //editor->setWindowModality(Qt::ApplicationModal);//独占，其他窗口不能操作
     //editor->setAttribute(Qt::WA_DeleteOnClose);
-    editor->resize(this->size());
+    editor->resize(200,350);
     editor->move(QApplication::desktop()->width()/2-editor->width()/2,QApplication::desktop()->height()/2-editor->height()/2);
     LayerItem item = model->data(index,Qt::EditRole).value<LayerItem>();
     editor->setdata(item);
@@ -336,7 +422,7 @@ void LayerTableView:: additem(){
     editor->setWindowFlags(Qt::CustomizeWindowHint|Qt::Window|Qt::WindowTitleHint);//使用窗口管理器
     editor->setWindowTitle("编辑");
     //editor->setAttribute(Qt::WA_DeleteOnClose);
-    editor->resize(this->size());
+    editor->resize(200,350);
     editor->move(QApplication::desktop()->width()/2-editor->width()/2,QApplication::desktop()->height()/2-editor->height()/2);
     connect(editor,SIGNAL(setfinished(LayerItem,QPixmap)),this,SLOT(editfinished(LayerItem)));
     connect(editor,SIGNAL(editcancel()),this,SLOT(editcancel()));
@@ -458,7 +544,7 @@ void LayerTableView::addanote()
     item.isenable = true;
     item.isnote = true;
     item.type = 0;
-    item.pre = "0";
+    item.pre = "1";
     item.note="";
     editfinished(item);
 }
@@ -494,4 +580,36 @@ void LayerTableView::changenote()
     item.isnote = !item.isnote;//取反
     doing = EditItem;
     editfinished(item);
+}
+
+void LayerTableView::savetheme()
+{
+    QString cfg = cfgpath+"/Theme";
+    QSettings settings(cfg,QSettings::NativeFormat);
+    settings.setValue("selectedcolor", selectedcolor);
+    settings.setValue("textcolor", textcolor);
+    settings.setValue("timecolor",timecolor);
+    settings.setValue("datecolor",datecolor);
+    settings.setValue("datebg",datebg);
+    settings.setValue("tipcolor", tipcolor);
+    settings.setValue("tipbg",tipbg);
+    settings.setValue("onpic",onpic);
+    settings.setValue("offpic",offpic);
+    qDebug()<<"LayerTableView::savetheme()";
+}
+
+void LayerTableView::readtheme()
+{
+    QString cfg = cfgpath+"/Theme";
+    QSettings settings(cfg,QSettings::NativeFormat);
+    selectedcolor= settings.value("selectedcolor", "").toString();
+    textcolor= settings.value("textcolor", "").toString();
+    timecolor= settings.value("timecolor","").toString();
+    datecolor= settings.value("datecolor","").toString();
+    datebg= settings.value("datebg","").toString();
+    tipcolor= settings.value("tipcolor", "").toString();
+    tipbg= settings.value("tipbg","").toString();
+    onpic= settings.value("onpic",false).toBool();
+    offpic= settings.value("offpic",false).toBool();
+    qDebug()<<"LayerTableView::readtheme()";
 }

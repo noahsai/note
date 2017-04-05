@@ -60,6 +60,9 @@ private slots:
     void delnote(QString id);
     void editcancel();
     void changenote();
+    void setselectcolor();
+    void settingclose();
+    void freshtheme();
 private:
     LayerItemDelegate *delegate;
     LayerTableModel *model;
@@ -72,6 +75,9 @@ private:
     void creattrayicon();
     void savepos();
     void readpos();
+    void readtheme();
+    void savetheme();
+
     bool hasitem(QString id);
     int notifytime;
     QString notifymusic;
@@ -83,6 +89,7 @@ private:
     editnote* editor;
     QMap<QString,desktopNote*> notelist;
     DOING doing;
+
 
 
 };

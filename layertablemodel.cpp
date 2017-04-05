@@ -131,15 +131,31 @@ void LayerTableModel::changeLayerVisibility(const QModelIndex& index)
     }
 }
 
-void LayerTableModel::deleteItem(int index)
-{
-    qDebug()<<"remove:"<<index;
-    if(index==-1) return;
-    QList<LayerItem>::iterator it = layerList.begin();
-    layerList.erase(it + index);
-    update_taskslist();
+//void LayerTableModel::deleteItem(int index)//这个函数不能删除多个，因为他是row定位，
+//{
+//    qDebug()<<"removebyrow:"<<index;
+//    if(index==-1) return;
+//    QList<LayerItem>::iterator it = layerList.begin();
+//    layerList.erase(it + index);
+//    update_taskslist();
 
+//}
+
+void LayerTableModel::deleteItem(QString id)
+{
+    qDebug()<<"removebyid:"<<id;
+    for(int i=0;i<layerList.count();i++)
+    {
+        if(layerList[i].id == id)
+        {
+           layerList.removeAt(i);
+        }
+
+
+    }
+    //update_taskslist();
 }
+
 
 void LayerTableModel::addItem()
 {

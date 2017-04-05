@@ -31,7 +31,8 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     bool setData(const QModelIndex &index, const QVariant &value, int role);
-    void deleteItem(int index);
+    void deleteItem(QString id);
+
     void addItem();
     void addItem(const LayerItem& add,bool withsave);
     void refreshModel();

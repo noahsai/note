@@ -8,6 +8,20 @@
 #include <edit.h>
 #include<layeritem.h>
 #include<QStaticText>
+
+extern QString cfgpath;//全局变量
+
+extern QString selectedcolor;
+extern QString textcolor;
+extern QString timecolor;
+extern QString datecolor;
+extern QString datebg;
+extern QString tipcolor;
+extern QString tipbg;
+extern bool onpic;
+extern bool offpic;
+
+
 class LayerItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
