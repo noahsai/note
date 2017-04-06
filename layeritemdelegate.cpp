@@ -59,7 +59,7 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
         else {
              textRect.setRect(rect.x()+5, rect.y()+1, rect.width()-105, rect.height()-1);
         }
-//    qDebug()<<textRect;
+//    //qDebug()<<textRect;
 
 
         textOption.setAlignment( Qt::AlignLeft | Qt::AlignTop);
@@ -121,7 +121,7 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
         else {
             textRect.setRect(rect.x()+rect.width()-102, rect.y(), 97, rect.height()-18);
         }
-//    qDebug()<<textRect;
+//    //qDebug()<<textRect;
 
         textOption.setAlignment( Qt::AlignRight | Qt::AlignBottom);
         textOption.setWrapMode(QTextOption::NoWrap);
@@ -162,6 +162,8 @@ void LayerItemDelegate::paint(QPainter * painter, const QStyleOptionViewItem & o
         }
         case 1:
             if(value.pre.length()==13)   deadline = "每天";
+            else if(value.pre=="1,2,3,4,5") deadline = "工作日";
+            else if(value.pre=="6,7") deadline = "休息日";
             else deadline = "星期" + change(value.pre);
             break;
         case 2:
@@ -237,48 +239,53 @@ bool LayerItemDelegate::editorEvent(QEvent * event,
     const QStyleOptionViewItem & option,
     const QModelIndex & index)
 {
+    Q_UNUSED(event);
+    Q_UNUSED(model);
+    Q_UNUSED(index);
+    Q_UNUSED(option);
+
     return false;
 }
 
-QWidget *LayerItemDelegate::createEditor(QWidget *parent,
-    const QStyleOptionViewItem &option,
-    const QModelIndex &index) const
-{
-//   // qDebug() << "createEditor";
-//    if (index.column() == 1) // value column
-//    {
-//        editnote* editor = new editnote(parent->parentWidget());
-//      //  editor->setFixedHeight(60);
-//        //editnote->setContentsMargins(48, 15, 50, 0);
-//        return editor;
-//    }
-//    else return 0;  // no editor attached
-}
+//QWidget *LayerItemDelegate::createEditor(QWidget *parent,
+//    const QStyleOptionViewItem &option,
+//    const QModelIndex &index) const
+//{
+////   // //qDebug() << "createEditor";
+////    if (index.column() == 1) // value column
+////    {
+////        editnote* editor = new editnote(parent->parentWidget());
+////      //  editor->setFixedHeight(60);
+////        //editnote->setContentsMargins(48, 15, 50, 0);
+////        return editor;
+////    }
+////    else return 0;  // no editor attached
+//}
 
-void LayerItemDelegate::setEditorData(QWidget *e, const QModelIndex &index) const
-{
-//    LayerItem value = index.model()->data(index, Qt::EditRole).value<LayerItem>();
+//void LayerItemDelegate::setEditorData(QWidget *e, const QModelIndex &index) const
+//{
+////    LayerItem value = index.model()->data(index, Qt::EditRole).value<LayerItem>();
 
-//    editnote* editor = static_cast<editnote*>(e);
-   // editor->item = value ;
-//    editor->setdata(value);
-  //  qDebug() << "setEditorData";
-}
+////    editnote* editor = static_cast<editnote*>(e);
+//   // editor->item = value ;
+////    editor->setdata(value);
+//  //  //qDebug() << "setEditorData";
+//}
 
-void LayerItemDelegate::updateEditorGeometry(QWidget *editor,
-    const QStyleOptionViewItem &option, const QModelIndex & index ) const
-{
-    //editor->setGeometry(option.rect);
-//    editor->setGeometry(editor->parentWidget()->rect());
-}
+//void LayerItemDelegate::updateEditorGeometry(QWidget *editor,
+//    const QStyleOptionViewItem &option, const QModelIndex & index ) const
+//{
+//    //editor->setGeometry(option.rect);
+////    editor->setGeometry(editor->parentWidget()->rect());
+//}
 
-void LayerItemDelegate::setModelData(QWidget *e, QAbstractItemModel *model,
-    const QModelIndex &index) const
-{
-  //  qDebug() << "setModelData";
-//    editnote* editor = static_cast<editnote*>(e);
-//    QVariant data;
-//    data.setValue(editor->item) ;
-//    model->setData(index, data, Qt::EditRole);
+//void LayerItemDelegate::setModelData(QWidget *e, QAbstractItemModel *model,
+//    const QModelIndex &index) const
+//{
+//  //  //qDebug() << "setModelData";
+////    editnote* editor = static_cast<editnote*>(e);
+////    QVariant data;
+////    data.setValue(editor->item) ;
+////    model->setData(index, data, Qt::EditRole);
 
-}
+//}

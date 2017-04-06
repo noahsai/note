@@ -56,7 +56,7 @@ private:
     QPainter painter;
     QPushButton *add,*noteclose,*toedit,*refresh,*del;
     QWidget *bar;
-
+    bool moved;
 };
 
 #endif // desktopnote_H

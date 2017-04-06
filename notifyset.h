@@ -65,7 +65,6 @@ private slots:
 
     void on_offpic_clicked();
 
-    void on_preview_clicked();
 
 signals:
     void ok(int ,QString ,QString );
@@ -83,6 +82,7 @@ private:
     QString tipbg_t;
     bool onpic_t;
     bool offpic_t;
+    void init();
 };
 
 #endif // NOTIFYSET_H

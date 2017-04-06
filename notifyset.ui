@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>275</width>
-    <height>428</height>
+    <width>270</width>
+    <height>424</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>设置</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QLineEdit
@@ -137,7 +137,6 @@ background-color:rgb(255, 255, 255);
        </layout>
       </item>
      </layout>
-     <zorder>label</zorder>
      <zorder></zorder>
      <zorder></zorder>
      <zorder></zorder>

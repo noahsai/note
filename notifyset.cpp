@@ -17,6 +17,7 @@ notifyset::notifyset(QWidget *parent) :
     tipbg_t = tipbg;
     onpic_t = onpic;
     offpic_t = offpic;
+    init();
 }
 
 notifyset::~notifyset()
@@ -92,6 +93,7 @@ void notifyset::on_pushButton_clicked()
     onpic=false;
     offpic=false;
     emit selectcolorset();
+    init();
 }
 
 
@@ -105,6 +107,7 @@ void notifyset::on_selcolor_button_clicked()
     t = "#selcolor_text{color:"+t+";}";
     ui->selcolor_text->setStyleSheet(t);
     emit selectcolorset();
+    emit freshtheme();
 }
 
 void notifyset::on_textcolor_clicked()
@@ -115,6 +118,7 @@ void notifyset::on_textcolor_clicked()
     textcolor = t;
     t = "#textcolor{color:"+t+";}";
     ui->textcolor->setStyleSheet(t);
+    emit freshtheme();
 }
 
 void notifyset::on_timecolor_clicked()
@@ -125,6 +129,7 @@ void notifyset::on_timecolor_clicked()
     timecolor = t;
     t = "#timecolor{color:"+t+";}";
     ui->timecolor->setStyleSheet(t);
+    emit freshtheme();
 }
 
 void notifyset::on_datecolor_clicked()
@@ -135,6 +140,7 @@ void notifyset::on_datecolor_clicked()
     datecolor = t;
     t = "#datecolor{color:"+t+";}";
     ui->datecolor->setStyleSheet(t);
+    emit freshtheme();
 }
 
 void notifyset::on_datebg_clicked()
@@ -145,6 +151,7 @@ void notifyset::on_datebg_clicked()
     datebg = t;
     t = "#datebg{color:"+t+";}";
     ui->datebg->setStyleSheet(t);
+    emit freshtheme();
 }
 
 void notifyset::on_tipcolor_clicked()
@@ -155,6 +162,7 @@ void notifyset::on_tipcolor_clicked()
     tipcolor = t;
     t = "#tipcolor{color:"+t+";}";
     ui->tipcolor->setStyleSheet(t);
+    emit freshtheme();
 }
 
 void notifyset::on_tipbg_clicked()
@@ -165,6 +173,7 @@ void notifyset::on_tipbg_clicked()
     tipbg = t;
     t = "#tipbg{color:"+t+";}";
     ui->tipbg->setStyleSheet(t);
+    emit freshtheme();
 }
 
 void notifyset::on_onpic_clicked()
@@ -172,9 +181,15 @@ void notifyset::on_onpic_clicked()
     QString home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first();
     QString file =  QFileDialog::getOpenFileName(this,"选择图片",home,tr("图片 (*.png)"));
     if(file.isNull()) return;
-    QFile f(file);
+    QFile f(cfgpath + "/on.png");
+    f.remove();
+    f.setFileName(file);
     f.close();
-    if(f.copy(cfgpath+"/on.png"))    onpic = true;
+    if(f.copy(cfgpath+"/on.png")){
+        ui->onpic->setIcon(QIcon(cfgpath + "/on.png"));
+        onpic = true;
+    }
+    emit freshtheme();
 }
 
 void notifyset::on_offpic_clicked()
@@ -182,12 +197,51 @@ void notifyset::on_offpic_clicked()
     QString home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first();
     QString file =  QFileDialog::getOpenFileName(this,"选择图片",home,tr("图片 (*.png)"));
     if(file.isNull()) return;
-    QFile f(file);
+    QFile f(cfgpath + "/off.png");
+    f.remove();
+    f.setFileName(file);
     f.close();
-    if(f.copy(cfgpath+"/off.png"))    offpic = true;
+    if(f.copy(cfgpath+"/off.png")){
+        ui->offpic->setIcon(QIcon(cfgpath + "/off.png"));
+        offpic = true;
+    }
+    emit freshtheme();
 }
 
-void notifyset::on_preview_clicked()
+void notifyset::init()
 {
+    QString t = selectedcolor;
+    ui->selcolor_text->setText(t);;
+    t = "#selcolor_text{color:"+t+";}";
+    ui->selcolor_text->setStyleSheet(t);
+
+    t = textcolor;
+    t = "#textcolor{color:"+t+";}";
+    ui->textcolor->setStyleSheet(t);
+
+    t = timecolor;
+    t = "#timecolor{color:"+t+";}";
+    ui->timecolor->setStyleSheet(t);
+
+    t = datecolor;
+    t = "#datecolor{color:"+t+";}";
+    ui->datecolor->setStyleSheet(t);
+
+    t = datebg;
+    t = "#datebg{color:"+t+";}";
+    ui->datebg->setStyleSheet(t);
+
+    t = tipcolor;
+    t = "#tipcolor{color:"+t+";}";
+    ui->tipcolor->setStyleSheet(t);
+
+    t = tipbg;
+    t = "#tipbg{color:"+t+";}";
+    ui->tipbg->setStyleSheet(t);
+
+    if(onpic)     ui->onpic->setIcon(QIcon(cfgpath + "/on.png"));
+    else    ui->onpic->setIcon(QIcon(":/on.png"));
+    if(offpic)    ui->onpic->setIcon(QIcon(cfgpath + "/off.png"));
+    else    ui->offpic->setIcon(QIcon(":/off.png"));
 
 }

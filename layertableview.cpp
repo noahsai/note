@@ -20,11 +20,7 @@ LayerTableView::LayerTableView(QWidget *parent)
     setWindowFlags(Qt::Window |Qt::WindowCloseButtonHint);
 
     set = nullptr;
-    notifytime = 10000;
-    notifymusic = ":/WA06.wav";
-    notifyicon = ":/wei.png";
-    sys_notify = false;
-    notify = new Notify;
+    notify = new Notify;//readpos()里会初始化各参数
     doing = Nothing;
     editor = nullptr;
     delegate = new LayerItemDelegate();
@@ -43,8 +39,8 @@ LayerTableView::LayerTableView(QWidget *parent)
     //When click on the checkbox it will emit signal twice.Click on the cell emit only once.
     connect(this, SIGNAL(clicked(const QModelIndex&)), this, SLOT(itemClicked(const QModelIndex&)));
     //===============托盘图标============
-    trayIcon = new QSystemTrayIcon();
-    trayIcon->setIcon(QIcon(":/wei3.png"));
+    trayIcon = new QSystemTrayIcon(this);
+    trayIcon->setIcon(QIcon(":/wei4.png"));
     connect(trayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(activate(QSystemTrayIcon::ActivationReason)));
     creattrayicon();
     trayIcon->show();
@@ -58,7 +54,7 @@ LayerTableView::LayerTableView(QWidget *parent)
   //  timer.setSingleShot(false);
     timer.start(800);
     readtheme();
-    readpos();
+    readpos();//各种初始化
 }
 
 LayerTableView::~LayerTableView()
@@ -107,6 +103,7 @@ void LayerTableView::newnotify()
 {
     if(set!=nullptr) return;
     set = new notifyset;
+    set->setWindowIcon(QIcon(":/wei2.png"));
     set->setinit(notifytime,notifymusic,notifyicon);
     connect(set,SIGNAL(ok(int,QString,QString)),this,SLOT(setnotify(int,QString,QString)));
     connect(set,SIGNAL(selectcolorset()),this,SLOT(setselectcolor()));
@@ -117,6 +114,7 @@ void LayerTableView::newnotify()
 }
 
 void LayerTableView::freshtheme(){
+    this->resizeRowsToContents();
 }
 
 void LayerTableView::settingclose()
@@ -128,7 +126,7 @@ void LayerTableView::setselectcolor(){
    if(selectedcolor.isEmpty()) {
        setStyleSheet("QTableView {\
                                 selection-background-color :  qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(125, 214, 221, 255), stop:0.505618 rgba(128, 199, 223, 255), stop:1 rgba(108, 201, 230, 255));\
-                                             gridline-color:rgb(230, 230, 230) ;\}");
+                                             gridline-color:rgb(230, 230, 230) ;}");
     }
     else {
         QString s ="QTableView {selection-background-color :";
@@ -367,7 +365,7 @@ void LayerTableView::readpos()
     point=settings.value("pos", QPoint(x, y)).toPoint();
     if(point.x()<0||point.x()>QApplication::desktop()->width()-20) point.setX(x);
     if(point.y()<0||point.y()>QApplication::desktop()->height()-20) point.setY(y);
-    notifytime =  settings.value("notifytime",int(5000)).toInt();
+    notifytime =  settings.value("notifytime",int(10000)).toInt();
     if(notifytime>0) sys_notify= false;
     else sys_notify=true;
     notifymusic = settings.value("notifymusic",QString(":/wei4.mp3")).toString();
@@ -398,9 +396,10 @@ void LayerTableView::setnotify(int t,QString m,QString i)
 
 void LayerTableView:: edititem(const QModelIndex& index){
     if (index.column() == 0) return;
-    if(editor!=nullptr) return;
-    doing = EditItem;
+    if(editor!=nullptr) return;//必须先判断
+    doing = EditItem;//再设doing
     editor = new editnote();
+    editor->setWindowIcon(QIcon(":/wei2.png"));
     editor->setWindowFlags(Qt::CustomizeWindowHint|Qt::Window|Qt::WindowTitleHint);//使用窗口管理器
     editor->setWindowTitle("编辑");
     //editor->setWindowModality(Qt::ApplicationModal);//独占，其他窗口不能操作
@@ -409,16 +408,17 @@ void LayerTableView:: edititem(const QModelIndex& index){
     editor->move(QApplication::desktop()->width()/2-editor->width()/2,QApplication::desktop()->height()/2-editor->height()/2);
     LayerItem item = model->data(index,Qt::EditRole).value<LayerItem>();
     editor->setdata(item);
-    connect(editor,SIGNAL(setfinished(LayerItem,QPixmap)),this,SLOT(noteedited(LayerItem)));//利用noteedited()，不需要独占
+    connect(editor,SIGNAL(setfinished(LayerItem,QPixmap)),this,SLOT(editfinished(LayerItem)));//利用noteedited()，不需要独占
     connect(editor,SIGNAL(editcancel()),this,SLOT(editcancel()));
     editor->show();
 
 }
 
 void LayerTableView:: additem(){
+    if(editor!=nullptr) return;//必须先判断
     doing = AddItem;
-    if(editor!=nullptr) return;
     editor = new editnote();
+    editor->setWindowIcon(QIcon(":/wei2.png"));
     editor->setWindowFlags(Qt::CustomizeWindowHint|Qt::Window|Qt::WindowTitleHint);//使用窗口管理器
     editor->setWindowTitle("编辑");
     //editor->setAttribute(Qt::WA_DeleteOnClose);
@@ -434,13 +434,14 @@ void LayerTableView::editfinished(const LayerItem &i)
     if(doing == EditItem || doing == EditbyNote)
     {
         desktopNote *note;
-        QModelIndex index = this->currentIndex();
+         QModelIndex index;
+        int row = model->findbbyid(i.id);
+        index = model->index(row,1);
         qDebug()<<index.row()<<index.column();
-        if(index.column()==0) return;
         QVariant data;
         data.setValue(i);
         model->setData(index,data,Qt::EditRole);
-        index = model->index(index.row(),0);//设置isenable
+        index = model->index(row,0);//设置isenable
         data.setValue(i.isenable);
         model->setData(index,data,Qt::CheckStateRole);
         if(i.isnote^hasitem(i.id))//异或，有变无，无变有
@@ -529,9 +530,6 @@ bool LayerTableView::hasitem(QString id)
 
 void LayerTableView::noteedited(const LayerItem& item){
     LayerItem i = item;
-    int row = model->findbbyid(item.id);
-    qDebug()<<"row"<<row;
-    this->setCurrentIndex(model->index(row,1));
     doing = EditbyNote;
     editfinished(i);
 }

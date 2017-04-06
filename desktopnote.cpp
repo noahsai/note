@@ -89,12 +89,14 @@ desktopNote::desktopNote(LayerItem i ,bool alpha,QWidget *parent) :
 
     //初始化item
     item = i;//设置item
+    moved = false;
     readpos();//读取配置
     initnote();//刷新便签内容
 }
 
 desktopNote::~desktopNote()
 {
+    readpos();
     delete ui;
 }
 
@@ -249,14 +251,16 @@ void desktopNote::mousePressEvent(QMouseEvent* event)
 }
 
 void desktopNote::mouseMoveEvent(QMouseEvent * event){
+    moved = true;
     move(event->globalPos()-oldpos);//貌似linux要这样
     event->accept();
 }
 
 void desktopNote::mouseReleaseEvent(QMouseEvent * event){
     setCursor(Qt::ArrowCursor);
-    savepos();
-    event->accept();
+   if(moved) savepos();
+   moved =false;
+   event->accept();
 }
 
 void desktopNote::savepos()

@@ -6,7 +6,7 @@ editnote::editnote(QWidget *parent) :
     ui(new Ui::edit)
 {
     ui->setupUi(this);
-    this->setMinimumWidth(150);//最新宽度150
+    this->setMinimumSize(50,50);//最小宽度50
     setAttribute(Qt::WA_DeleteOnClose);
     this->setSizePolicy(QSizePolicy::Ignored ,QSizePolicy::Preferred );
     ui->size->setValue(12);//默认值，最大最小在ui里设置了
@@ -51,7 +51,6 @@ void editnote::on_note_textChanged()
     item.note= text;
     item.html=ui->note->toHtml();
 //    qDebug()<<ui->note->toPlainText();
-//    qDebug()<<ui->note->toHtml();
 
 }
 
@@ -91,21 +90,6 @@ void editnote::on_type_currentIndexChanged(int index)
 
 }
 
-
-void editnote::on_date_textChanged(const QString &arg1)
-{
-    //item.date = arg1;
-}
-
-void editnote::on_time_textChanged(const QString &arg1)
-{
-   // item.time = arg1;
-}
-
-void editnote::on_pre_textChanged(const QString &arg1)
-{
-   // item.pre = arg1;
-}
 
 
 void editnote::setdata(LayerItem &value)
@@ -223,11 +207,10 @@ void editnote::on_pre_editingFinished()
             one.setNum(i);
             if(text.indexOf(one)!=-1)
             {
-                days = days + one;
-                if(i!=7) days +=",";
+                days = days + one + ",";
             }
         }
-        text = days;
+        text=days.remove(days.count()-1,1);
     }
     else
     {
@@ -243,11 +226,13 @@ void editnote::on_pushButton_clicked()
     on_date_editingFinished();
     on_time_editingFinished();
     //qDebug()<<"warp"<<ui->note->document()->defaultTextOption().wrapMode();
+   // qDebug()<<ui->note->width()<<ui->note->height();
     QPixmap pix(ui->note->width(),ui->note->height());
     if(item.color.indexOf("png")!=-1)//只有png时才支持透明，jpg和纯色不需要
     {
         pix.fill(Qt::transparent);
     }
+    qDebug()<<pix.rect();
 
     QPainter painter(&pix);
     QAbstractTextDocumentLayout::PaintContext ctx;
@@ -256,8 +241,8 @@ void editnote::on_pushButton_clicked()
     //ui->note->document()->drawContents(&painter);//不能画背景
 
    // pix.save(cfgpath+"/66.png");
-    qDebug()<<this->geometry()<<ui->note->size();
-
+    //qDebug()<<this->geometry()<<ui->note->size();
+   // pix.scaled();
     if(item.pre.isEmpty()) item.pre = "1";
     if(item.note.isEmpty()) item.note = "空白事件";
     if(item.color.isEmpty()) item.color = "#ffffff";
@@ -417,26 +402,6 @@ void editnote::on_checkBox_clicked(bool checked)
     item.isnote = checked;
 }
 
-void editnote::on_pushButton_2_clicked()
-{
-    QColor color;
-    color = QColorDialog::getColor(Qt::white, this);
-    //qDebug()<<color;
-    if(!color.isValid()){
-        QFile file(cfgpath+"/bgpic.png");
-        if(!file.exists())
-        {
-            file.setFileName(cfgpath+"/bgpic.jpg");
-            if(!file.exists()) color = "#ffffff";//默认白色
-            else    item.color=cfgpath+"/bgpic.jpg";
-
-        }
-        else item.color=cfgpath+"/bgpic.png";//彩蛋。
-    }
-    else item.color = color.name();
-    setbgcolor(item.color,false);
-    qDebug()<<item.color;
-}
 
 void editnote::setbgcolor(QString color,bool init)
 {
@@ -465,4 +430,24 @@ void editnote::on_enable_clicked(bool checked)
 void editnote::on_cancel_clicked()
 {
     emit editcancel();
+}
+
+void editnote::on_bgchoose_activated(int index)
+{
+    if(index == 0)
+    {
+    QColor color;
+    color = QColorDialog::getColor(Qt::white, this);
+    if(!color.isValid()) return;
+    item.color = color.name();
+    }
+    else if(index == 1)
+    {
+        QString home = QStandardPaths::standardLocations(QStandardPaths::HomeLocation).first();
+        QString file =  QFileDialog::getOpenFileName(this,"选择图片",home,tr("图片 (*.png *.jpg)"));
+        if(file.isNull()) return;
+        item.color = file;
+    }
+    setbgcolor(item.color,false);
+    qDebug()<<item.color;
 }

@@ -12,7 +12,8 @@
 #include<QTextBlock>
 #include<QPainter>
 #include <QAbstractTextDocumentLayout>
-
+#include<QFileDialog>
+#include<QStandardPaths>
 namespace Ui {
 class edit;
 }
@@ -37,12 +38,6 @@ private slots:
     void on_onetime_clicked(bool checked);
 
     void on_type_currentIndexChanged(int index);
-
-    void on_date_textChanged(const QString &arg1);
-
-    void on_time_textChanged(const QString &arg1);
-
-    void on_pre_textChanged(const QString &arg1);
 
     void on_onetime_clicked();
 
@@ -72,11 +67,11 @@ private slots:
 
     void on_checkBox_clicked(bool checked);
 
-    void on_pushButton_2_clicked();
-
     void on_enable_clicked(bool checked);
 
     void on_cancel_clicked();
+
+    void on_bgchoose_activated(int index);
 
 signals:
     void setfinished(const LayerItem,const QPixmap&);

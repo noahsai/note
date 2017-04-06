@@ -60,11 +60,12 @@ void Notify::init(int t, QString &m, QString &i)
                         }");
         ui->icon->setStyleSheet("");
     }
-    ui->icon->setPixmap(QPixmap(i));
+    QPixmap pix(i);
+    pix = pix.scaled(120,150,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
+    ui->icon->setPixmap(pix);
     music = m;
     if(music.indexOf(":/wei4.mp3")==0) music = QApplication::applicationDirPath()+"/wei4.mp3";
     qDebug()<<"notifymusic:"<<music;
-    player->setMedia(QUrl::fromLocalFile(music));
     player->setVolume(100);
 }
 
@@ -75,6 +76,7 @@ void  Notify::message(QString& mes)
      if( list -> count() ==1 )
      {
          ui->note->setText(mes);
+         player->setMedia(QUrl::fromLocalFile(music));
          player->play();
         timer->start( time );
      }
