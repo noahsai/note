@@ -26,7 +26,7 @@ QVariant LayerTableModel::data(const QModelIndex &index, int role) const
         }
         if (role == Qt::SizeHintRole)
         {
-            return QSize(30, 60);
+            return QSize(45, 60);
         }
     }
     else

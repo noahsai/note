@@ -18,7 +18,7 @@ LayerTableView::LayerTableView(QWidget *parent)
 {
     connect(this,SIGNAL(doubleClicked(QModelIndex)),this,SLOT(edititem(QModelIndex)));
     setWindowFlags(Qt::Window |Qt::WindowCloseButtonHint);
-
+    this->setColumnWidth(0,45);//设置第一列列宽
     set = nullptr;
     notify = new Notify;//readpos()里会初始化各参数
     doing = Nothing;
