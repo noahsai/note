@@ -46,11 +46,11 @@ void editnote::inititem()
 
 void editnote::on_note_textChanged()
 {
-    QString text;
-    text = ui->note->toPlainText().remove("\n").remove(" ");
-    item.note= text;
-    item.html=ui->note->toHtml();
-//    qDebug()<<ui->note->toPlainText();
+//    QString text;
+//    text = ui->note->toPlainText().remove("\n").remove(" ");
+//    item.note= text;
+//    item.html=ui->note->toHtml();
+//    qDebug()<<"textchanged:"<<item.html;
 
 }
 
@@ -94,6 +94,7 @@ void editnote::on_type_currentIndexChanged(int index)
 
 void editnote::setdata(LayerItem &value)
 {
+    qDebug()<<"setdata:"<<value.html;
     ui->note->clear();
     item = value;
     ui->date ->setText( value.date);
@@ -223,6 +224,13 @@ void editnote::on_pre_editingFinished()
 
 void editnote::on_pushButton_clicked()
 {
+    QString text,html;
+    text = ui->note->toPlainText().remove("\n").remove(" ");
+    item.note= text;
+    html = ui->note->toHtml();
+    html = html.replace("-qt-paragraph-type:empty;"," ");//同下
+    html = html.replace("<br />"," ");//这里曲线修复qt组件setHtml首行是<br />时会自动增加换行的bug！
+    item.html=html;
     on_date_editingFinished();
     on_time_editingFinished();
     //qDebug()<<"warp"<<ui->note->document()->defaultTextOption().wrapMode();
@@ -247,6 +255,7 @@ void editnote::on_pushButton_clicked()
     if(item.note.isEmpty()) item.note = "空白事件";
     if(item.color.isEmpty()) item.color = "#ffffff";
     emit setfinished(item,pix);
+    qDebug()<<"edited:"<<item.html;
 
 }
 

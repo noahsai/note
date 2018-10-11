@@ -146,6 +146,7 @@ void desktopNote::editcancel()
 
 void desktopNote::initnote()
 {
+    qDebug()<<"init:"<<item.html;
     QPixmap p(this->width(),this->height());
     if(item.color.indexOf("png")!=-1)
     {
